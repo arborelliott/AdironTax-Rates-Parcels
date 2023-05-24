@@ -5,7 +5,8 @@
 
 NOTES: 
     report failed merge items
-    Summary of all totals
+    update catskills to include total rows
+    
 """
 
 import pandas as pd
@@ -46,42 +47,43 @@ parcel.rename(columns={
     'School District Code': 'School Code'
 }, inplace=True)
 
-#Subset of only 2021 data
+# Subset of only 2021 data
 tax = tax[tax['Roll Year'] == 2021]
 
-#subset of only 532a parcels
+# Subset of only 532a parcels
 parcel = parcel[parcel['Property Class'] == 931] #532a class
 parcel = parcel[parcel['Roll Year'] == 2021]
 
 #%% Merging Data
 merged_parcel_tax = pd.merge(parcel, tax[['County','County Tax Rate Outside Village (per $1000 value)','Municipal Tax Rate Outside Village (per $1000 value)','School District Tax Rate (per $1000 value)','School Code','Municipality Code']], how = 'left', left_on=['County','School Code','Municipality Code'], right_on=['County','School Code','Municipality Code'])
 
+
 #%% Merging and Calculating tax rates for each parcel
 
-#County
+# County
 
 merged_parcel_tax['County Rate'] = merged_parcel_tax['County Tax Rate Outside Village (per $1000 value)'] / 1000
 
-#Municipal
+# Municipal
 merged_parcel_tax['Municipal Rate'] = merged_parcel_tax['Municipal Tax Rate Outside Village (per $1000 value)'] / 1000
 
-#School
+# School
 merged_parcel_tax['School District Tax Rate (per $1000 value)'] = pd.to_numeric(merged_parcel_tax['School District Tax Rate (per $1000 value)'])
 merged_parcel_tax['School Rate'] = merged_parcel_tax['School District Tax Rate (per $1000 value)'] / 1000
 
 
 #%% Calculating parcel tax cost
 
-#County
+# County
 merged_parcel_tax['County Tax Paid'] = merged_parcel_tax['County Rate'] * merged_parcel_tax['County Taxable Value'] /1000
 
-#Municipal
+# Municipal
 merged_parcel_tax['Municipal Tax Paid'] = merged_parcel_tax['Municipal Rate'] * merged_parcel_tax['Town Taxable Value'] /1000
 
-#School
+# School
 merged_parcel_tax['School Tax Paid'] = merged_parcel_tax['School Rate'] * merged_parcel_tax['School Taxable'] /1000
 
-#Combined
+# Combined
 merged_parcel_tax['Combined Tax Paid'] = merged_parcel_tax['School Tax Paid'] + merged_parcel_tax['County Tax Paid'] + merged_parcel_tax['Municipal Tax Paid']
 
 
@@ -116,7 +118,7 @@ cat_parcel_tax = merged_parcel_tax[merged_parcel_tax['County'].isin(cat_counties
 
 #%% Summarizing ADK
 
-#County table
+# County table
 adk_county_sum = adk_parcel_tax.groupby(['County'])['County Tax Paid'].agg(['sum','mean','count'])
 adk_county_sum['sum'] = adk_county_sum['sum'].round(2)
 
@@ -159,21 +161,35 @@ total_count = adk_school_sum['count'].sum()
 total_row = pd.Series({'sum': total_sum, 'mean': total_mean, 'count': total_count}, name='School Total')
 
 adk_school_sumtotal = adk_school_sum.append(total_row)
+adk_overall_total = adk_overall_total.append(total_row)
 
 # Overall Table
-
 total_sum = adk_overall_total['sum'].sum()
 total_mean = adk_overall_total['mean'].mean()
 total_count = adk_school_sum['count'].sum()
 total_row = pd.Series({'sum': total_sum, 'mean': total_mean, 'count': total_count}, name='Overall Total')
 adk_overall_total = adk_overall_total.append(total_row)
 
-#All 3
+datasets = [adk_county_sumtotal, adk_munic_sumtotal, adk_school_sumtotal, adk_overall_total]
+
+# cleanup
+del [total_sum, total_mean, total_count, total_row]
+
+
+
+
+# renaming sum column in all datasets
+for dataset in datasets:
+    dataset.rename(columns={'sum': 'sum (thousands)'}, inplace=True)
+del [dataset, datasets]
+
+
+# All 3
 # adk_all3_sum = adk_parcel_tax.groupby(['County','Municipality Name','School District Name'])['School Tax Paid'].agg(['sum','mean','count'])
 # adk_all3_sum['sum'] = adk_all3_sum['sum'].round(2)
-#### need to add for other 2 taxes paid and export these to csv? Also convert to in millions?
 
-#Exporting to excel
+
+# Exporting to excel
 
 with pd.ExcelWriter('Output/adk_parcel_tax.xlsx',date_format=None, mode='w') as writer:
     adk_parcel_tax.to_excel(writer, sheet_name = 'All Parcels')
@@ -184,31 +200,24 @@ with pd.ExcelWriter('Output/adk_parcel_tax.xlsx',date_format=None, mode='w') as 
 
 #%% Summarizing Catskills
 
-#County
+# County
 cat_county_sum = cat_parcel_tax.groupby(['County'])['County Tax Paid'].agg(['sum','mean','count'])
 cat_county_sum['sum'] = cat_county_sum['sum'].round(2)
 
-#Municipality
+# Municipality
 cat_munic_sum = cat_parcel_tax.groupby(['Municipality Name'])['Municipal Tax Paid'].agg(['sum','mean','count'])
 cat_munic_sum['sum'] = cat_munic_sum['sum'].round(2)
 
-#School
+# School
 cat_school_sum = cat_parcel_tax.groupby(['School District Name'])['School Tax Paid'].agg(['sum','mean','count'])
 cat_school_sum['sum'] = cat_school_sum['sum'].round(2)
 
-#All 3
-# adk_all3_sum = adk_parcel_tax.groupby(['County','Municipality Name','School District Name'])['School Tax Paid'].agg(['sum','mean','count'])
-# adk_all3_sum['sum'] = adk_all3_sum['sum'].round(2)
-#### need to add for other 2 taxes paid and export these to csv? Also convert to in millions?
-
-#Exporting to excel
-
+# Exporting to excel
 with pd.ExcelWriter('Output/cat_parcel_tax.xlsx',date_format=None, mode='w') as writer:
     cat_parcel_tax.to_excel(writer, sheet_name = 'All Parcels')
     cat_county_sum.to_excel(writer, sheet_name = 'County Summary')
     cat_munic_sum.to_excel(writer, sheet_name = 'Municipality Summary')
     cat_school_sum.to_excel(writer, sheet_name = 'School Summary')
-
 
 
 #%% ADK Graphics
@@ -219,7 +228,7 @@ plt.rcParams["figure.autolayout"] = True
 plt.barh(adk_county_sum.index, adk_county_sum['sum'])
 plt.xlabel('Sum of County Tax Paid')
 plt.ylabel('County')
-plt.title('Sum of County Tax Paid by County (Thousands)')
+plt.title('Sum of County Tax Paid on 532-a by County (Thousands)')
 plt.yticks(rotation=0)
 plt.savefig('Output/adk_county_sum.png')
 plt.show()
@@ -227,7 +236,7 @@ plt.show()
 plt.barh(adk_munic_sum.index, adk_munic_sum['sum'])
 plt.ylabel('Municipality')
 plt.xlabel('Sum of Municipality Tax Paid')
-plt.title('Sum of Municipality Tax Paid by Municipality (Thousands)')
+plt.title('Sum of Municipality Tax Paid on 532-a by Municipality (Thousands)')
 plt.yticks(rotation=0, fontsize = 5)
 plt.savefig('Output/adk_Municipality_sum.png')
 plt.show()
@@ -235,7 +244,7 @@ plt.show()
 plt.barh(adk_school_sum.index, adk_school_sum['sum'])
 plt.ylabel('School')
 plt.xlabel('Sum of School Tax Paid')
-plt.title('Sum of School Tax Paid by School (Thousands)')
+plt.title('Sum of School Tax Paid on 532-a by School (Thousands)')
 plt.yticks(rotation=0, fontsize = 5)
 plt.savefig('Output/adk_School_sum.png')
 plt.show()
