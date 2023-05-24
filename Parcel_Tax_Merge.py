@@ -18,7 +18,7 @@ plt.rcParams['figure.dpi'] = 300
 tax_raw = pd.read_csv('Real_Property_Tax_Rates_Levy_Data_By_Municipality__Beginning_2004.csv') 
 tax = tax_raw
 
-parcel_raw = pd.read_csv('Property_Assessment_Data_from_Local_Assessment_Rolls_931_980.csv')
+parcel_raw = pd.read_csv('Property_Assessment_Data_from_Local_Assessment_Rolls_931_980_940_932_990.csv')
 parcel = parcel_raw
 
 #%% Cleaning
@@ -50,9 +50,32 @@ parcel.rename(columns={
 # Subset of only 2021 data
 tax = tax[tax['Roll Year'] == 2021]
 
-# Subset of only 532a parcels
-parcel = parcel[parcel['Property Class'] == 931] #532a class
+#%% Subset of only 532a parcels
+
 parcel = parcel[parcel['Roll Year'] == 2021]
+
+
+
+### Property Class
+classdisct = {931:'532a', 980:'Easments', 940:'Reforested/other',932:'532b',990:'Other'}
+
+###############
+pclass = 931
+###############
+
+
+taxcode = classdisct[pclass]
+parcel = parcel[parcel['Property Class'] == pclass] #532a class
+
+
+# class 931 = tax 532a Taxable Forest Preserve
+# class 980 = Taxable state-owned conservation easements
+# class 940 = Reforested land and other related conservation purposes
+# class 932 = tax 532b Other State-owned land under Section 532-b, c, d, e, f, or g
+# class 990 = Other taxable state land assessments
+
+
+
 
 #%% Merging Data
 merged_parcel_tax = pd.merge(parcel, tax[['County','County Tax Rate Outside Village (per $1000 value)','Municipal Tax Rate Outside Village (per $1000 value)','School District Tax Rate (per $1000 value)','School Code','Municipality Code']], how = 'left', left_on=['County','School Code','Municipality Code'], right_on=['County','School Code','Municipality Code'])
@@ -191,12 +214,12 @@ del [dataset, datasets]
 
 # Exporting to excel
 
-with pd.ExcelWriter('Output/adk_parcel_tax.xlsx',date_format=None, mode='w') as writer:
-    adk_parcel_tax.to_excel(writer, sheet_name = 'All Parcels')
-    adk_county_sumtotal.to_excel(writer, sheet_name = 'County Summary')
-    adk_munic_sumtotal.to_excel(writer, sheet_name = 'Municipality Summary')
-    adk_school_sumtotal.to_excel(writer, sheet_name = 'School Summary')
-    adk_overall_total.to_excel(writer, sheet_name = 'Overall Summary')
+with pd.ExcelWriter(f'Output/{taxcode}_adk_parcel_tax.xlsx',date_format=None, mode='w') as writer:
+    adk_parcel_tax.to_excel(writer, sheet_name = f'{taxcode} All Parcels')
+    adk_county_sumtotal.to_excel(writer, sheet_name = '{taxcode} County Summary')
+    adk_munic_sumtotal.to_excel(writer, sheet_name = '{taxcode} Municipality Summary')
+    adk_school_sumtotal.to_excel(writer, sheet_name = '{taxcode} School Summary')
+    adk_overall_total.to_excel(writer, sheet_name = '{taxcode} Overall Summary')
 
 #%% Summarizing Catskills
 
@@ -213,7 +236,7 @@ cat_school_sum = cat_parcel_tax.groupby(['School District Name'])['School Tax Pa
 cat_school_sum['sum'] = cat_school_sum['sum'].round(2)
 
 # Exporting to excel
-with pd.ExcelWriter('Output/cat_parcel_tax.xlsx',date_format=None, mode='w') as writer:
+with pd.ExcelWriter(f'Output/{taxcode}_cat_parcel_tax.xlsx',date_format=None, mode='w') as writer:
     cat_parcel_tax.to_excel(writer, sheet_name = 'All Parcels')
     cat_county_sum.to_excel(writer, sheet_name = 'County Summary')
     cat_munic_sum.to_excel(writer, sheet_name = 'Municipality Summary')
@@ -228,25 +251,25 @@ plt.rcParams["figure.autolayout"] = True
 plt.barh(adk_county_sum.index, adk_county_sum['sum'])
 plt.xlabel('Sum of County Tax Paid')
 plt.ylabel('County')
-plt.title('Sum of County Tax Paid on 532-a by County (Thousands)')
+plt.title(f'Sum of County Tax Paid on {taxcode} by County (Thousands)')
 plt.yticks(rotation=0)
-plt.savefig('Output/adk_county_sum.png')
+plt.savefig(f'Output/{taxcode}_adk_county_sum.png')
 plt.show()
 
 plt.barh(adk_munic_sum.index, adk_munic_sum['sum'])
 plt.ylabel('Municipality')
 plt.xlabel('Sum of Municipality Tax Paid')
-plt.title('Sum of Municipality Tax Paid on 532-a by Municipality (Thousands)')
+plt.title(f'Sum of Municipality Tax Paid on {taxcode} by Municipality (Thousands)')
 plt.yticks(rotation=0, fontsize = 5)
-plt.savefig('Output/adk_Municipality_sum.png')
+plt.savefig(f'Output/{taxcode}_adk_Municipality_sum.png')
 plt.show()
 
 plt.barh(adk_school_sum.index, adk_school_sum['sum'])
 plt.ylabel('School')
 plt.xlabel('Sum of School Tax Paid')
-plt.title('Sum of School Tax Paid on 532-a by School (Thousands)')
+plt.title(f'Sum of School Tax Paid on {taxcode} by School (Thousands)')
 plt.yticks(rotation=0, fontsize = 5)
-plt.savefig('Output/adk_School_sum.png')
+plt.savefig(f'Output/{taxcode}_adk_School_sum.png')
 plt.show()
 
 
