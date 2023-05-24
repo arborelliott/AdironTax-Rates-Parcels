@@ -65,22 +65,34 @@ adk_munic = ['Altona', 'Arietta', 'Ausable', 'Bellmont', 'Benson', 'Black Brook'
 
 
 adk_tax = tax[tax['County'].isin(adk_counties)]
-adk_parcel = parcel[parcel['County'].isin(adk_counties)]
+adk_parcel = parcel[parcel['County'].isin(adk_counties)] #### Maybe this should be done after the merge??
 
 ### Add Catskills
 
 #%% Calculating tax rates for each parcel
 
-#county
+#County
 adk_parcel_tax = pd.merge(adk_parcel, adk_tax[['County','County Tax Rate Outside Village (per $1000 value)','Municipal Tax Rate Outside Village (per $1000 value)','School District Tax Rate (per $1000 value)','School Code','Municipality Code']], how = 'left', left_on=['County','School Code','Municipality Code'], right_on=['County','School Code','Municipality Code'])
 adk_parcel_tax['County Rate'] = adk_parcel_tax['County Tax Rate Outside Village (per $1000 value)'] / 1000
 
-#municipal
+#Municipal
 adk_parcel_tax['Municipal Rate'] = adk_parcel_tax['Municipal Tax Rate Outside Village (per $1000 value)'] / 1000
 
-#school
+#School
 adk_parcel_tax['School District Tax Rate (per $1000 value)'] = pd.to_numeric(adk_parcel_tax['School District Tax Rate (per $1000 value)'])
 adk_parcel_tax['School Rate'] = adk_parcel_tax['School District Tax Rate (per $1000 value)'] / 1000
 
 
-#%% 
+#%% Calculating parcel tax cost
+
+#County
+adk_parcel_tax['County Tax Paid'] = adk_parcel_tax['County Rate'] * adk_parcel_tax['County Taxable Value']
+
+#Municipal
+adk_parcel_tax['Municipal Tax Paid'] = adk_parcel_tax['Municipal Rate'] * adk_parcel_tax['Town Taxable Value']
+
+#School
+adk_parcel_tax['School Tax Paid'] = adk_parcel_tax['School Rate'] * adk_parcel_tax['School Taxable']
+
+#Combined
+adk_parcel_tax['Combined Tax Paid'] = adk_parcel_tax['School Tax Paid'] + adk_parcel_tax['County Tax Paid'] + adk_parcel_tax['Municipal Tax Paid']
