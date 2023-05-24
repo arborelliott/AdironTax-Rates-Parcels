@@ -98,3 +98,35 @@ adk_parcel_tax['School Tax Paid'] = adk_parcel_tax['School Rate'] * adk_parcel_t
 adk_parcel_tax['Combined Tax Paid'] = adk_parcel_tax['School Tax Paid'] + adk_parcel_tax['County Tax Paid'] + adk_parcel_tax['Municipal Tax Paid']
 
 adk_parcel_tax.to_csv('adk_parcel_tax.csv')
+
+#%% Summarizing
+
+#County
+adk_county_sum = adk_parcel_tax.groupby(['County'])['County Tax Paid'].agg(['sum','mean','count'])
+adk_county_sum['sum'] = adk_county_sum['sum'].round(2)
+
+#Municipality
+adk_munic_sum = adk_parcel_tax.groupby(['Municipality Name'])['Municipal Tax Paid'].agg(['sum','mean','count'])
+adk_munic_sum['sum'] = adk_munic_sum['sum'].round(2)
+
+#School
+adk_school_sum = adk_parcel_tax.groupby(['School District Name'])['School Tax Paid'].agg(['sum','mean','count'])
+adk_school_sum['sum'] = adk_school_sum['sum'].round(2)
+
+#All 3
+adk_all3_sum = adk_parcel_tax.groupby(['County','Municipality Name','School District Name'])['School Tax Paid'].agg(['sum','mean','count'])
+adk_all3_sum['sum'] = adk_all3_sum['sum'].round(2)
+#### need to add for other 2 taxes paid and export these to csv? Also convert to in millions?
+
+#%% Graphics
+
+plt.bar(adk_county_sum.index, adk_county_sum['sum'])
+
+plt.xlabel('County')
+plt.ylabel('Sum of County Tax Paid')
+plt.title('Sum of County Tax Paid by County')
+
+plt.xticks(rotation=90)
+
+plt.savefig('adk_county_sum.png')
+plt.show()
