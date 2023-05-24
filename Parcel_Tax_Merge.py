@@ -97,7 +97,6 @@ adk_parcel_tax['School Tax Paid'] = adk_parcel_tax['School Rate'] * adk_parcel_t
 #Combined
 adk_parcel_tax['Combined Tax Paid'] = adk_parcel_tax['School Tax Paid'] + adk_parcel_tax['County Tax Paid'] + adk_parcel_tax['Municipal Tax Paid']
 
-adk_parcel_tax.to_csv('adk_parcel_tax.csv')
 
 #%% Summarizing
 
@@ -114,9 +113,17 @@ adk_school_sum = adk_parcel_tax.groupby(['School District Name'])['School Tax Pa
 adk_school_sum['sum'] = adk_school_sum['sum'].round(2)
 
 #All 3
-adk_all3_sum = adk_parcel_tax.groupby(['County','Municipality Name','School District Name'])['School Tax Paid'].agg(['sum','mean','count'])
-adk_all3_sum['sum'] = adk_all3_sum['sum'].round(2)
+# adk_all3_sum = adk_parcel_tax.groupby(['County','Municipality Name','School District Name'])['School Tax Paid'].agg(['sum','mean','count'])
+# adk_all3_sum['sum'] = adk_all3_sum['sum'].round(2)
 #### need to add for other 2 taxes paid and export these to csv? Also convert to in millions?
+
+#Exporting to excel
+
+with pd.ExcelWriter('Output/adk_parcel_tax.xlsx',date_format=None, mode='w') as writer:
+    adk_parcel_tax.to_excel(writer, sheet_name = 'All Parcels')
+    adk_county_sum.to_excel(writer, sheet_name = 'County Summary')
+    adk_munic_sum.to_excel(writer, sheet_name = 'Municipality Summary')
+    adk_school_sum.to_excel(writer, sheet_name = 'School Summary')
 
 #%% Graphics
 
