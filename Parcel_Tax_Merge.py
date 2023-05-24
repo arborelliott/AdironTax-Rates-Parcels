@@ -96,3 +96,5 @@ adk_parcel_tax['School Tax Paid'] = adk_parcel_tax['School Rate'] * adk_parcel_t
 
 #Combined
 adk_parcel_tax['Combined Tax Paid'] = adk_parcel_tax['School Tax Paid'] + adk_parcel_tax['County Tax Paid'] + adk_parcel_tax['Municipal Tax Paid']
+
+adk_parcel_tax.to_csv('adk_parcel_tax.csv')
