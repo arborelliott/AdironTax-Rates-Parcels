@@ -4,8 +4,6 @@
 @author: Jordan
 
 NOTES: 
-    report failed merge items
-    update catskills to include total rows
     
 """
 
@@ -51,6 +49,10 @@ parcel.rename(columns={
 tax = tax[tax['Roll Year'] == 2021]
 parcel = parcel[parcel['Roll Year'] == 2021]
 
+# Fix St lawrence naming
+tax['County'] = tax['County'].replace('St. Lawrence', 'St Lawrence')
+
+
 #%% Subset of only 532a parcels
 
 
@@ -76,7 +78,28 @@ parcel = parcel[parcel['Property Class'] == pclass] #532a class
 
 
 #%% Merging Data
-merged_parcel_tax = pd.merge(parcel, tax[['County','County Tax Rate Outside Village (per $1000 value)','Municipal Tax Rate Outside Village (per $1000 value)','School District Tax Rate (per $1000 value)','School Code','Municipality Code']], how = 'left', left_on=['County','School Code','Municipality Code'], right_on=['County','School Code','Municipality Code'])
+#merged_parcel_tax = pd.merge(parcel, tax[['County','County Tax Rate Outside Village (per $1000 value)','Municipal Tax Rate Outside Village (per $1000 value)','School District Tax Rate (per $1000 value)','School Code','Municipality Code']], how = 'left', left_on=['County','School Code','Municipality Code'], right_on=['County','School Code','Municipality Code'])
+
+
+merged_parcel_tax = pd.merge(parcel, tax[['County', 'County Tax Rate Outside Village (per $1000 value)', 'Municipal Tax Rate Outside Village (per $1000 value)', 'School District Tax Rate (per $1000 value)', 'School Code', 'Municipality Code']], 
+                            how='left', 
+                            left_on=['County', 'School Code', 'Municipality Code'], 
+                            right_on=['County', 'School Code', 'Municipality Code'], 
+                            indicator=True)
+
+# Find unmatched rows
+unmatched_rows = merged_parcel_tax[merged_parcel_tax['_merge'] == 'left_only']
+
+# Report unmatched data
+if not unmatched_rows.empty:
+    print("Unmatched data:")
+    print(unmatched_rows)
+    
+# Export unmatched rows to CSV
+    #unmatched_rows.to_csv('Output/unmatched_data.csv', index=False)
+
+# Cleanup
+del unmatched_rows
 
 
 #%% Merging and Calculating tax rates for each parcel
@@ -112,7 +135,7 @@ merged_parcel_tax['Combined Tax Paid'] = merged_parcel_tax['School Tax Paid'] + 
 #%% Subsetting ADK and Catskills
 
 #Adks
-adk_counties = ['Clinton', 'Essex', 'Franklin', 'Fulton', 'Hamilton', 'Herkimer', 'Lewis', 'Oneida', 'Saint Lawrence', 'Saratoga', 'Warren', 'Washington']
+adk_counties = ['Clinton', 'Essex', 'Franklin', 'Fulton', 'Hamilton', 'Herkimer', 'Lewis', 'Oneida', 'St Lawrence', 'Saratoga', 'Warren', 'Washington']
 adk_munic = ['Altona', 'Arietta', 'Ausable', 'Bellmont', 'Benson', 'Black Brook', 'Bleecker', 'Bolton', 'Brighton',
              'Broadalbin', 'Caroga', 'Chester', 'Chesterfield', 'Clare', 'Clifton', 'Colton', 'Corinth', 'Croghan',
              'Crown Point', 'Dannemora', 'Day', 'Diana', 'Dresden', 'Duane', 'Edinburg', 'Elizabethtown',
@@ -236,7 +259,7 @@ def export_tax_data(func_parcel_tax, prefix=''):
 
 #%% Functions
 ###### Data Export functions
-export_tax_data(adk_parcel_tax, prefix='adk')
 export_tax_data(cat_parcel_tax, prefix='cat')
+export_tax_data(adk_parcel_tax, prefix='adk')
 ######
 
