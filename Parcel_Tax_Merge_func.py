@@ -3,7 +3,11 @@
 
 @author: Jordan
 
+Boundaries_merge.py should be run before this. 
+
 NOTES: 
+    need to edit merge func to include desired new columns from tax
+    
     
 """
 
@@ -11,12 +15,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 plt.rcParams['figure.dpi'] = 300
 
-#%% Import CSV files
+#%% Import  tax and parcel CSV files
 
-tax_raw = pd.read_csv('Real_Property_Tax_Rates_Levy_Data_By_Municipality__Beginning_2004.csv') 
+#tax_raw = pd.read_csv('Input/Real_Property_Tax_Rates_Levy_Data_By_Municipality__Beginning_2004.csv') 
+tax_raw = pd.read_csv('Input/NYS_Tax_rates_Levy_Roll21.csv') 
 tax = tax_raw
 
-parcel_raw = pd.read_csv('Property_Assessment_Data_from_Local_Assessment_Rolls_931_980_940_932_990.csv')
+parcel_raw = pd.read_csv('Input/Property_Assessment_Data_from_Local_Assessment_Rolls_931_980_940_932_990.csv')
 parcel = parcel_raw
 
 #%% Cleaning
@@ -35,13 +40,14 @@ parcel = remove_nancol(parcel)
 
 tax.rename(columns={
     'County Name': 'County',
-    'WIS Code': 'School Code',
-    'Swis Code': 'Municipality Code'
+    'School Code': 'School Code',
+    'Swis Code': 'SWIS',
 }, inplace=True)
 
 parcel.rename(columns={
     'County Name': 'County',
-    'Swis Code': 'Municipality Code',
+    'SWIS Code': 'Local SWIS',
+    'Municipality Code': 'SWIS',
     'School District Code': 'School Code'
 }, inplace=True)
 
@@ -78,14 +84,13 @@ parcel = parcel[parcel['Property Class'] == pclass] #532a class
 
 
 #%% Merging Data
-#merged_parcel_tax = pd.merge(parcel, tax[['County','County Tax Rate Outside Village (per $1000 value)','Municipal Tax Rate Outside Village (per $1000 value)','School District Tax Rate (per $1000 value)','School Code','Municipality Code']], how = 'left', left_on=['County','School Code','Municipality Code'], right_on=['County','School Code','Municipality Code'])
 
-
-merged_parcel_tax = pd.merge(parcel, tax[['County', 'County Tax Rate Outside Village (per $1000 value)', 'Municipal Tax Rate Outside Village (per $1000 value)', 'School District Tax Rate (per $1000 value)', 'School Code', 'Municipality Code']], 
+merged_parcel_tax = pd.merge(parcel, tax[['County', 'County Tax Rate Outside Village (per $1000 value)', 'Municipal Tax Rate Outside Village (per $1000 value)', 'School District Tax Rate (per $1000 value)', 'School Code', 'SWIS']], 
                             how='left', 
-                            left_on=['County', 'School Code', 'Municipality Code'], 
-                            right_on=['County', 'School Code', 'Municipality Code'], 
+                            left_on=['County', 'School Code', 'SWIS'], 
+                            right_on=['County', 'School Code', 'SWIS'], 
                             indicator=True)
+
 
 # Find unmatched rows
 unmatched_rows = merged_parcel_tax[merged_parcel_tax['_merge'] == 'left_only']
@@ -96,10 +101,18 @@ if not unmatched_rows.empty:
     print(unmatched_rows)
     
 # Export unmatched rows to CSV
-    #unmatched_rows.to_csv('Output/unmatched_data.csv', index=False)
+    unmatched_rows.to_csv('Output/unmatched_data.csv', index=False)
 
 # Cleanup
-del unmatched_rows
+#del unmatched_rows
+
+# Adding GEOID Code
+# munic_bound = pd.read_csv('New_York_State_Municipal_Civil_Boundaries.csv')
+# GEOID_parcel_tax = pd.merge(merged_parcel_tax,munic_bound[['NAME','SWIS']],
+#                             how = 'left',
+#                             left_on=('SWIS Code'),
+#                             right_on =('SWIS'),
+#                             indicator = True)
 
 
 #%% Merging and Calculating tax rates for each parcel
