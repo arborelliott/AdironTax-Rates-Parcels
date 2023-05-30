@@ -3,11 +3,13 @@
 
 @author: Jordan
 
-Boundaries_merge.py should be run before this. 
+3. This should be run after Boundaries_Merge and census_api
+This script imports tax rate data from the previous script, and parcel data from assessment rolls. 
+The Script cleans the data, subsets to a given year and property class, and merges the parcel data with the tax rate data to calculate the amount of taxes paid on each parcel. 
+The script outputs 3 graphs per region of interest, and an excel file summarizing the findings.  
 
 NOTES: 
-    need to edit merge func to include desired new columns from tax
-    
+
     
 """
 
@@ -15,14 +17,22 @@ import pandas as pd
 import matplotlib.pyplot as plt
 plt.rcParams['figure.dpi'] = 300
 
-#%% Import  tax and parcel CSV files
 
+#%% Importing files (tax, Parcel, Census)
+
+# TAX
 #tax_raw = pd.read_csv('Input/Real_Property_Tax_Rates_Levy_Data_By_Municipality__Beginning_2004.csv') 
-tax_raw = pd.read_csv('Input/NYS_Tax_rates_Levy_Roll21.csv') 
+tax_raw = pd.read_csv('Input/NYS_Tax_rates_Levy_Roll21.csv',dtype = {'FIPS_CODE':str,'STATE FIPS':str,'County FIPS':str,'Subdiv FIPS':str,'Place FIPS':str}) 
 tax = tax_raw
 
+# PARCEL
 parcel_raw = pd.read_csv('Input/Property_Assessment_Data_from_Local_Assessment_Rolls_931_980_940_932_990.csv')
 parcel = parcel_raw
+
+# CENSUS
+county_census = pd.read_excel('Output/Census/County_Census.xlsx')
+subdiv_census = pd.read_excel('Output/Census/subdiv_Census.xlsx')
+
 
 #%% Cleaning
 
@@ -51,6 +61,15 @@ parcel.rename(columns={
     'School District Code': 'School Code'
 }, inplace=True)
 
+# Remove unneeded cols
+drop = ['Tax Class','Roll Section','Local SWIS','Front','Depth','Deed Book','Page','Primary Owner First Name', 'Primary Owner MI', 'Primary Owner Last Name', 'Primary Owner Suffix',
+        'Additional Owner 1 First Name', 'Additional Owner 1 MI', 'Additional Owner 1 Last Name', 'Additional Owner 1 Suffix', 'Additional Owner 2 First Name', 
+        'Additional Owner 2 MI', 'Additional Owner 2 Last Name', 'Additional Owner 3 Last Name', 'Mailing Address Prefix', 'Mailing Address Number', 'Mailing Address Street', 
+        'Mailing Address Suff', 'Mailing Address City','Parcel Address Number', 'Parcel Address Street', 'Parcel Address Suff', 'Bank', 
+        'Mailing Address State', 'Mailing Address Zip', 'Mailing Address PO Box']
+parcel = parcel.drop(drop, axis = 1)
+print(parcel.columns.tolist())
+
 # Subset of only 2021 data
 tax = tax[tax['Roll Year'] == 2021]
 parcel = parcel[parcel['Roll Year'] == 2021]
@@ -59,7 +78,7 @@ parcel = parcel[parcel['Roll Year'] == 2021]
 tax['County'] = tax['County'].replace('St. Lawrence', 'St Lawrence')
 
 
-#%% Subset of only 532a parcels
+#%% Subseting
 
 
 ### Property Class
@@ -85,11 +104,16 @@ parcel = parcel[parcel['Property Class'] == pclass] #532a class
 
 #%% Merging Data
 
-merged_parcel_tax = pd.merge(parcel, tax[['County', 'County Tax Rate Outside Village (per $1000 value)', 'Municipal Tax Rate Outside Village (per $1000 value)', 'School District Tax Rate (per $1000 value)', 'School Code', 'SWIS']], 
+print(tax.columns.tolist())
+merged_parcel_tax = pd.merge(parcel, tax[['County', 'County Tax Rate Outside Village (per $1000 value)', 'Municipal Tax Rate Outside Village (per $1000 value)',
+                                          'School District Tax Rate (per $1000 value)', 'School Code', 'SWIS','MUNI_TYPE','FIPS_CODE', 'State FIPS', 'County FIPS', 'Subdiv FIPS', 
+                                          'POP1990', 'POP2000', 'POP2010', 'POP2020', 'CALC_SQ_MI']], 
                             how='left', 
                             left_on=['County', 'School Code', 'SWIS'], 
                             right_on=['County', 'School Code', 'SWIS'], 
                             indicator=True)
+
+# Saving FIPS column as string
 
 
 # Find unmatched rows
@@ -106,13 +130,6 @@ if not unmatched_rows.empty:
 # Cleanup
 #del unmatched_rows
 
-# Adding GEOID Code
-# munic_bound = pd.read_csv('New_York_State_Municipal_Civil_Boundaries.csv')
-# GEOID_parcel_tax = pd.merge(merged_parcel_tax,munic_bound[['NAME','SWIS']],
-#                             how = 'left',
-#                             left_on=('SWIS Code'),
-#                             right_on =('SWIS'),
-#                             indicator = True)
 
 
 #%% Merging and Calculating tax rates for each parcel
@@ -174,7 +191,8 @@ cat_parcel_tax = merged_parcel_tax[merged_parcel_tax['County'].isin(cat_counties
 def export_tax_data(func_parcel_tax, prefix=''):
     
     # County table
-    county_sum = func_parcel_tax.groupby(['County'])['County Tax Paid'].agg(['sum', 'mean', 'count'])
+    county_sum = func_parcel_tax.groupby(['County'])['County Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
+    county_sum['County FIPS'] = func_parcel_tax.groupby('County')['County FIPS'].first().reset_index(drop=True) # inclue county FIPS code
     county_sum['sum'] = county_sum['sum'].round(2)
     
     # County table total
@@ -190,7 +208,8 @@ def export_tax_data(func_parcel_tax, prefix=''):
     overall_total = overall_total.append(total_row)
     
     # Municipality table
-    munic_sum = func_parcel_tax.groupby(['Municipality Name'])['Municipal Tax Paid'].agg(['sum', 'mean', 'count'])
+    munic_sum = func_parcel_tax.groupby(['Municipality Name'])['Municipal Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
+    munic_sum['Subdiv FIPS'] = func_parcel_tax.groupby('Municipality Name')['Subdiv FIPS'].first().reset_index(drop=True)
     munic_sum['sum'] = munic_sum['sum'].round(2)
     
     # Municipality table total
@@ -205,7 +224,7 @@ def export_tax_data(func_parcel_tax, prefix=''):
     overall_total = overall_total.append(total_row)
     
     # School table
-    school_sum = func_parcel_tax.groupby(['School District Name'])['School Tax Paid'].agg(['sum', 'mean', 'count'])
+    school_sum = func_parcel_tax.groupby(['School District Name'])['School Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
     school_sum['sum'] = school_sum['sum'].round(2)
     
     # School table total
@@ -262,6 +281,10 @@ def export_tax_data(func_parcel_tax, prefix=''):
         dataset.rename(columns={'sum': 'sum (thousands)'}, inplace=True)
     del [dataset, datasets]
     
+    #Merging With Census Data
+    #county_sum_total = county_sum_total.merge(county_census, left_on='County_FIPS', right_on='County')
+
+    
     # Export to Excel
     with pd.ExcelWriter(f'Output/{taxcode}_{prefix}_parcel_tax.xlsx',date_format=None, mode='w') as writer:
         func_parcel_tax.to_excel(writer, sheet_name = f'{taxcode} All Parcels')
@@ -275,4 +298,3 @@ def export_tax_data(func_parcel_tax, prefix=''):
 export_tax_data(cat_parcel_tax, prefix='cat')
 export_tax_data(adk_parcel_tax, prefix='adk')
 ######
-
