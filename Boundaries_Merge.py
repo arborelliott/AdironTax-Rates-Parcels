@@ -18,7 +18,6 @@ NOTES:
 """
 
 import pandas as pd
-import matplotlib.pyplot as plt
 
 #%% Importing CSVs
 town_city_raw = pd.read_csv('Input/NYS_Civil_Boundaries_TOWN_CITY.csv')
@@ -60,9 +59,11 @@ tcv.insert(10, 'Place FIPS', tcv['FIPS_CODE'].str[10:])
 
 #tcv.to_csv('NYS_Town_City_Village_Merged.csv', index=False)
 
-#%% Import tax levy data
+#%% Import and format tax levy data
 
 levy_raw = pd.read_csv('Input/Real_Property_Tax_Rates_Levy_Data_By_Municipality__Beginning_2004.csv')
+levy_raw.insert(4,'Village','')
+levy_raw.insert(17,'Village Tax Rate (per $1000 value)','')    
 levy = levy_raw
 
 levy.rename(columns={
@@ -71,13 +72,17 @@ levy.rename(columns={
     'Swis Code': 'SWIS'
 }, inplace=True)
 
-
 # Subset of only 2021 data
 levy = levy[levy['Roll Year'] == 2021]
 
-
 # Fix St lawrence naming
 levy['County'] = levy['County'].replace('St. Lawrence', 'St Lawrence')
+levy = levy.drop(['County Tax Rate Inside Village (per $1000 value)','Municipal Tax Rate Inside Village (per $1000 value)'], axis = 1)
+
+#%% Append villages data (Now in seperate Script)
+#levy.to_csv('Input/Real_Property_Tax_Rates_Levy_Data_By_Municipality__Beginning_2004_VILLAGE_format.csv', index = False)
+#village_tax_rows = pd.read_csv('Input/Village_Property_Taxrates_2021.csv')
+#levy = levy.append(village_tax_rows, ignore_index=True)
 
 #%% Merge tax levy Data with boundaries, SWIS to FIPS
 
@@ -89,7 +94,7 @@ failed_to_merge = merged_tcv[merged_tcv['_merge'] == 'left_only']
 
 # removing un-needed cols
 print(merged_tcv.columns.tolist())
-drop = ['Type of Value on which Tax Rates are applied','GNIS_ID','DOS_LL', 'DOSLL_DATE', 'MAP_SYMBOL','DATEMOD','COUNTY','NAME']
+drop = ['Type of Value on which Tax Rates are applied','GNIS_ID','DOS_LL', 'DOSLL_DATE', 'MAP_SYMBOL','DATEMOD','COUNTY','NAME','_merge']
 merged_tcv = merged_tcv.drop(drop, axis = 1)
 
 # Export to CSV

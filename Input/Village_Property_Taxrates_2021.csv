@@ -1,0 +1,49 @@
+Fiscal Year Ending,Roll Year,SWIS,Municipality,Village,County,School Code,School Name,Type of Value on which Tax Rates are applied,County Tax Levy,County Tax Rate Outside Village (per $1000 value),Municipality Tax Levy,Municipal Tax Rate Outside Village (per $1000 value),School District Tax Levy,School District Tax Rate (per $1000 value),Village Tax Rate (per $1000 value)
+2022,2021,412601,Corinth,Corinth,Saratoga,412601,Corinth,Full Value,"1,550,628",2.36,"2,410,318",3.59,"8,136,191",12.11,5.2
+2022,2021,412689,Corinth,,Saratoga,412601,Corinth,Full Value,"1,550,628",2.36,"2,410,318",3.59,"8,136,191",12.11,
+2022,2021,93401,Dannemora,Dannemora,Clinton,93601,Northern Adirondack,Full Value,"479,901",4.03,"1,017,803",6.24,"2,113,397",18,4.89
+2022,2021,93401,Dannemora,Dannemora,Clinton,94401,Saranac,Full Value,"479,901",4.03,"1,017,803",6.24,"951,580",19.47,4.89
+2022,2021,93489,Dannemora,,Clinton,93601,Northern Adirondack,Full Value,"479,901",4.03,"1,017,803",6.24,"2,113,397",18,
+2022,2021,93489,Dannemora,,Clinton,94401,Saranac,Full Value,"479,901",4.03,"1,017,803",6.24,"951,580",19.47,
+2022,2021,94401,Saranac,Dannemora,Clinton,93601,Northern Adirondack,Full Value,"686,059",4.03,"1,568,866",6.1,"58,564",18,4.89
+2022,2021,94401,Saranac,Dannemora,Clinton,94001,Peru,Full Value,"686,059",4.03,"1,568,866",6.1,"5,619",18.83,4.89
+2022,2021,94401,Saranac,Dannemora,Clinton,94401,Saranac,Full Value,"686,059",4.03,"1,568,866",6.1,"5,099,251",19.46,4.89
+2022,2021,94489,Saranac,,Clinton,93601,Northern Adirondack,Full Value,"686,059",4.03,"1,568,866",6.1,"58,564",18,
+2022,2021,94489,Saranac,,Clinton,94001,Peru,Full Value,"686,059",4.03,"1,568,866",6.1,"5,619",18.83,
+2022,2021,94489,Saranac,,Clinton,94401,Saranac,Full Value,"686,059",4.03,"1,568,866",6.1,"5,099,251",19.46,
+2022,2021,522201,Lake George,Lake George,Warren,522201,Lake George,Full Value,"5,404,584",3.82,"3,055,829",2.2,"8,402,436",6.24,6.047
+2022,2021,522201,Lake George,Lake George,Warren,524001,Warrensburg,Full Value,"5,404,584",3.82,"3,055,829",2.2,"721,014",12.86,6.047
+2022,2021,522289,Lake George,,Warren,522201,Lake George,Full Value,"5,404,584",3.82,"3,055,829",2.2,"8,402,436",6.24,
+2022,2021,522289,Lake George,,Warren,524001,Warrensburg,Full Value,"5,404,584",3.82,"3,055,829",2.2,"721,014",12.86,
+2022,2021,154001,North Elba,Lake Placid,Essex,154002,Lake Placid,Full Value,"8,089,234",3.34,"4,776,427",1.98,"15,298,954",6.87,4.104373
+2022,2021,154001,North Elba,Lake Placid,Essex,164601,Saranac Lake,Full Value,"8,089,234",3.34,"4,776,427",1.98,"1,962,575",9.69,4.104373
+2022,2021,154089,North Elba,,Essex,154002,Lake Placid,Full Value,"8,089,234",3.34,"4,776,427",1.98,"15,298,954",6.87,
+2022,2021,154089,North Elba,,Essex,164601,Saranac Lake,Full Value,"8,089,234",3.34,"4,776,427",1.98,"1,962,575",9.69,
+2022,2021,154003,North Elba,Saranac Lake,Essex,154002,Lake Placid,Full Value,"8,089,234",3.34,"4,776,427",1.98,"15,298,954",6.87,11.823754
+2022,2021,154003,North Elba,Saranac Lake,Essex,164601,Saranac Lake,Full Value,"8,089,234",3.34,"4,776,427",1.98,"1,962,575",9.69,11.823754
+2022,2021,154403,St. Armand,Saranac Lake,Essex,164601,Saranac Lake,Full Value,"593,743",3.34,"934,767",5.2,"1,746,774",9.69,11.823754
+2022,2021,154489,St. Armand,,Essex,164601,Saranac Lake,Full Value,"593,743",3.34,"934,767",5.2,"1,746,774",9.69,
+2022,2021,164601,Harrietstown,Saranac Lake,Franklin,164601,Saranac Lake,Full Value,"4,181,926",4.44,"2,657,537",2.83,"9,153,320",9.69,11.823754
+2022,2021,164689,Harrietstown,,Franklin,164601,Saranac Lake,Full Value,"4,181,926",4.44,"2,657,537",2.83,"9,153,320",9.69,
+2022,2021,203001,Lake Pleasant,Speculator,Hamilton,203001,Lake Pleasant,Full Value,"1,204,793",2.62,"2,228,739",4.85,"3,889,716",8.47,6.106584
+2022,2021,203001,Lake Pleasant,Speculator,Hamilton,203601,Wells,Full Value,"1,204,793",2.62,"2,228,739",4.85,"39,280",10.09,6.106584
+2022,2021,203089,Lake Pleasant,,Hamilton,203001,Lake Pleasant,Full Value,"1,204,793",2.62,"2,228,739",4.85,"3,889,716",8.47,
+2022,2021,203089,Lake Pleasant,,Hamilton,203601,Wells,Full Value,"1,204,793",2.62,"2,228,739",4.85,"39,280",10.09,
+2022,2021,162001,Tupper Lake,Tupper Lake,Franklin,162001,Tupper Lake,Full Value,"2,170,683",4.44,"2,338,664",4.72,"6,820,344",13.98,14.53
+2022,2021,162089,Tupper Lake,,Franklin,162001,Tupper Lake,Full Value,"2,170,683",4.44,"2,338,664",4.72,"6,820,344",13.98,
+2022,2021,173001,Mayfield,Mayfield,Fulton,170500,Gloversville,Full Value,"4,608,813",7.8,"431,910",0.72,"27,496",21.77,4.76
+2022,2021,173001,Mayfield,Mayfield,Fulton,172201,Broadalbin-Perth,Full Value,"4,608,813",7.8,"431,910",0.72,"1,922,395",15.98,4.76
+2022,2021,173001,Mayfield,Mayfield,Fulton,173001,Mayfield,Full Value,"4,608,813",7.8,"431,910",0.72,"6,907,611",14.43,4.76
+2022,2021,173001,Mayfield,Mayfield,Fulton,173201,Northville,Full Value,"4,608,813",7.8,"431,910",0.72,"133,460",12.08,4.76
+2022,2021,173089,Mayfield,,Fulton,170500,Gloversville,Full Value,"4,608,813",7.8,"431,910",0.72,"27,496",21.77,
+2022,2021,173089,Mayfield,,Fulton,172201,Broadalbin-Perth,Full Value,"4,608,813",7.8,"431,910",0.72,"1,922,395",15.98,
+2022,2021,173089,Mayfield,,Fulton,173001,Mayfield,Full Value,"4,608,813",7.8,"431,910",0.72,"6,907,611",14.43,
+2022,2021,173089,Mayfield,,Fulton,173201,Northville,Full Value,"4,608,813",7.8,"431,910",0.72,"133,460",12.08,
+2022,2021,173201,Northampton,Northville,Fulton,172201,Broadalbin-Perth,Full Value,"3,325,823",7.8,"482,422",1.1,"491,039",15.98,8.62
+2022,2021,173201,Northampton,Northville,Fulton,173001,Mayfield,Full Value,"3,325,823",7.8,"482,422",1.1,"187,739",14.43,8.62
+2022,2021,173201,Northampton,Northville,Fulton,173201,Northville,Full Value,"3,325,823",7.8,"482,422",1.1,"4,800,407",12.08,8.62
+2022,2021,173201,Northampton,Northville,Fulton,413001,Edinburg,Full Value,"3,325,823",7.8,"482,422",1.1,"6,400",4.74,8.62
+2022,2021,173289,Northampton,,Fulton,172201,Broadalbin-Perth,Full Value,"3,325,823",7.8,"482,422",1.1,"491,039",15.98,
+2022,2021,173289,Northampton,,Fulton,173001,Mayfield,Full Value,"3,325,823",7.8,"482,422",1.1,"187,739",14.43,
+2022,2021,173289,Northampton,,Fulton,173201,Northville,Full Value,"3,325,823",7.8,"482,422",1.1,"4,800,407",12.08,
+2022,2021,173289,Northampton,,Fulton,413001,Edinburg,Full Value,"3,325,823",7.8,"482,422",1.1,"6,400",4.74,

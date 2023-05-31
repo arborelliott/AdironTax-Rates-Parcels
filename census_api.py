@@ -11,11 +11,15 @@
     VARIABLES: retrieve_census(for_clause, title)
     choose the geographic location desired in the census, and the title you want to be attached to the outputs. 
 
+# Useful Links
+https://api.census.gov/data/2020/acs/acs5/variables.html
+https://api.census.gov/data/2020/acs/acs5/geography.html
+
+
 NOTES: 
     #census spatial join
-    sub parts of counties  map?
     
-
+    
 """
 
 import pandas as pd
