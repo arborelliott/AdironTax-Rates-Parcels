@@ -4,9 +4,13 @@
 @author: Jordan
 
 3. This should be run after Boundaries_Merge and census_api
-This script imports tax rate data from the previous script, and parcel data from assessment rolls. 
-The Script cleans the data, subsets to a given year and property class, and merges the parcel data with the tax rate data to calculate the amount of taxes paid on each parcel. 
-The script outputs 3 graphs per region of interest, and an excel file summarizing the findings.  
+    This script imports tax rate data from the previous script, and parcel data from assessment rolls. 
+    The Script cleans the data, subsets to a given year and property class, and merges the parcel data with the tax rate data to calculate the amount of taxes paid on each parcel. 
+    The script outputs 3 graphs per region of interest, and an excel file summarizing the findings.  
+    
+    INPUT:
+    OUTPUT: 
+    VARIABLES:
 
 NOTES: 
 
@@ -30,8 +34,8 @@ parcel_raw = pd.read_csv('Input/Property_Assessment_Data_from_Local_Assessment_R
 parcel = parcel_raw
 
 # CENSUS
-county_census = pd.read_excel('Output/Census/County_Census.xlsx')
-subdiv_census = pd.read_excel('Output/Census/subdiv_Census.xlsx')
+county_census = pd.read_excel('Output/Census/County_Census.xlsx',dtype = {'county':str})
+subdiv_census = pd.read_excel('Output/Census/subdiv_Census.xlsx',dtype = {'county':str,'county subdivision':str})
 
 
 #%% Cleaning
@@ -62,7 +66,7 @@ parcel.rename(columns={
 }, inplace=True)
 
 # Remove unneeded cols
-drop = ['Tax Class','Roll Section','Local SWIS','Front','Depth','Deed Book','Page','Primary Owner First Name', 'Primary Owner MI', 'Primary Owner Last Name', 'Primary Owner Suffix',
+drop = ['Tax Class','Roll Section','Front','Depth','Deed Book','Page','Primary Owner First Name', 'Primary Owner MI', 'Primary Owner Last Name', 'Primary Owner Suffix',
         'Additional Owner 1 First Name', 'Additional Owner 1 MI', 'Additional Owner 1 Last Name', 'Additional Owner 1 Suffix', 'Additional Owner 2 First Name', 
         'Additional Owner 2 MI', 'Additional Owner 2 Last Name', 'Additional Owner 3 Last Name', 'Mailing Address Prefix', 'Mailing Address Number', 'Mailing Address Street', 
         'Mailing Address Suff', 'Mailing Address City','Parcel Address Number', 'Parcel Address Street', 'Parcel Address Suff', 'Bank', 
@@ -166,19 +170,28 @@ merged_parcel_tax['Combined Tax Paid'] = merged_parcel_tax['School Tax Paid'] + 
 
 #Adks
 adk_counties = ['Clinton', 'Essex', 'Franklin', 'Fulton', 'Hamilton', 'Herkimer', 'Lewis', 'Oneida', 'St Lawrence', 'Saratoga', 'Warren', 'Washington']
-adk_munic = ['Altona', 'Arietta', 'Ausable', 'Bellmont', 'Benson', 'Black Brook', 'Bleecker', 'Bolton', 'Brighton',
-             'Broadalbin', 'Caroga', 'Chester', 'Chesterfield', 'Clare', 'Clifton', 'Colton', 'Corinth', 'Croghan',
-             'Crown Point', 'Dannemora', 'Day', 'Diana', 'Dresden', 'Duane', 'Edinburg', 'Elizabethtown',
-             'Ellenburg', 'Ephratah', 'Essex', 'Fine', 'Forestport', 'Fort Ann', 'Franklin', 'Greenfield', 'Greig',
-             'Hadley', 'Hague', 'Harrietstown', 'Hope', 'Hopkinton', 'Horicon', 'Indian Lake', 'Inlet', 'Jay',
-             'Johnsburg', 'Johnstown', 'Keene', 'Lake George', 'Lake Luzerne', 'Lake Pleasant', 'Lawrence', 'Lewis',
-             'Long Lake', 'Lyonsdale', 'Mayfield', 'Minerva', 'Morehouse', 'Moriah', 'Newcomb', 'North Elba',
-             'North Hudson', 'Northampton', 'Ohio', 'Oppenheim', 'Parishville', 'Peru', 'Piercefield', 'Pitcairn',
-             'Plattsburgh', 'Providence', 'Putnam', 'Queensbury', 'Remsen', 'Russia', 'Saint Armand', 'Salisbury',
-             'Santa Clara', 'Saranac', 'Schroon', 'Stony Creek', 'Stratford', 'Thurman', 'Ticonderoga', 'Tupper Lake',
-             'Warrensburg', 'Watson', 'Waverly', 'Webb', 'Wells', 'Westport', 'Willsboro', 'Wilmington', 'Corinth',
-             'Dannemora', 'Lake George', 'Lake Placid', 'Mayfield', 'Northville', 'Saranac Lake', 'Speculator',
-             'Tupper Lake']
+adk_munic = ['Altona', 'Arietta', 'AuSable', 'Bellmont', 'Benson', 'Black Brook', 
+        'Bleecker', 'Bolton', 'Brighton', 'Broadalbin', 'Caroga', 'Chester', 
+        'Chesterfield', 'Clare', 'Clifton', 'Colton', 'Corinth', 'Croghan', 
+        'Crown', 'Dannemora', 'Day', 'Diana', 'Dresden', 'Duane', 'Edinburg', 
+        'Elizabethtown', 'Ellenburg', 'Ephratah', 'Essex ', 'Fine', 
+        'Forestport', 'Fort Ann', 'Franklin', 'Greenfield', 'Greig', 'Hadley', 
+        'Hague', 'Harrietstown', 'Hope', 'Hopkinton', 'Horicon', 'Indian Lake',
+        'Inlet', 'Jay', 'Johnsburg', 'Johnstown', 'Keene', 'Lake George', 
+        'Lake Luzerne', 'Lake Pleasant', 'Lawrence', 'Lewis', 'Long', 
+        'Lyonsdale', 'Mayfield', 'Minerva', 'Morehouse', 'Moriah', 'Newcomb', 
+        'North', 'North Hudson', 'Northampton', 'Ohio', 'Oppenheim', 
+        'Parishville', 'Peru', 'Piercefield', 'Pitcairn', 'Plattsburgh', 
+        'Providence', 'Putnam', 'Queensbury', 'Remsen', 'Russia', 'Salisbury',
+        'Santa Clara', 'Saranac', 'Schroon', 'St. Armand', 'Stony Creek ', 
+        'Stratford', 'Thurman', 'Ticonderoga', 'Tupper Lake',
+        # Corinth through Tupper Lake are villages. 
+        'Corinth', 'Dannemora', 'Lake George', 'Lake Placid', 'Mayfield', 'Northville', 
+        'Saranac Lake', 'Speculator', 'Tupper Lake',
+        # End village lsit 
+        'Warrensburg', 'Watson', 'Waverly', 'Webb', 'Wells', 'Westport', 
+        'Willsboro', 'Wilmington']
+        
 adk_parcel_tax = merged_parcel_tax[merged_parcel_tax['County'].isin(adk_counties)]
 
 #Catskills
@@ -195,7 +208,7 @@ def export_tax_data(func_parcel_tax, prefix=''):
     county_sum['County FIPS'] = func_parcel_tax.groupby('County')['County FIPS'].first().reset_index(drop=True) # inclue county FIPS code
     county_sum['sum'] = county_sum['sum'].round(2)
     
-    # County table total
+    # County table (total row)
     total_sum = county_sum['sum'].sum()
     total_mean = county_sum['mean'].mean()
     total_count = county_sum['count'].sum()
@@ -203,16 +216,15 @@ def export_tax_data(func_parcel_tax, prefix=''):
     total_row = pd.Series({'sum': total_sum, 'mean': total_mean, 'count': total_count}, name=' County Total')
     county_sum_total = county_sum.append(total_row)
     
-    # Overall table total
     overall_total = pd.DataFrame(columns=['sum', 'mean', 'count'])
     overall_total = overall_total.append(total_row)
     
-    # Municipality table
+    # Municipality table 
     munic_sum = func_parcel_tax.groupby(['Municipality Name'])['Municipal Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
     munic_sum['Subdiv FIPS'] = func_parcel_tax.groupby('Municipality Name')['Subdiv FIPS'].first().reset_index(drop=True)
     munic_sum['sum'] = munic_sum['sum'].round(2)
     
-    # Municipality table total
+    # Municipality table (total row)
     total_sum = munic_sum['sum'].sum()
     total_mean = munic_sum['mean'].mean()
     total_count = munic_sum['count'].sum()
@@ -220,14 +232,13 @@ def export_tax_data(func_parcel_tax, prefix=''):
     total_row = pd.Series({'sum': total_sum, 'mean': total_mean, 'count': total_count}, name='Municipality Total')
     munic_sum_total = munic_sum.append(total_row)
     
-    # Overall table total
     overall_total = overall_total.append(total_row)
     
     # School table
     school_sum = func_parcel_tax.groupby(['School District Name'])['School Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
     school_sum['sum'] = school_sum['sum'].round(2)
     
-    # School table total
+    # School table (total row)
     total_sum = school_sum['sum'].sum()
     total_mean = school_sum['mean'].mean()
     total_count = school_sum['count'].sum()
@@ -236,14 +247,15 @@ def export_tax_data(func_parcel_tax, prefix=''):
     school_sum_total = school_sum.append(total_row)
     overall_total = overall_total.append(total_row)
     
-    # Overall Table
+    # Overall Table 
     total_sum = overall_total['sum'].sum()
     total_mean = overall_total['mean'].mean()
     total_count = school_sum['count'].sum()
     total_row = pd.Series({'sum': total_sum, 'mean': total_mean, 'count': total_count}, name='Overall Total')
     overall_total = overall_total.append(total_row)
     
-    # Graphs
+    
+    ## Graphs
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["figure.figsize"] = [7.00, 7.00]
     plt.rcParams["figure.autolayout"] = True
@@ -272,7 +284,7 @@ def export_tax_data(func_parcel_tax, prefix=''):
     plt.savefig(f'Output/{taxcode}_{prefix}_School_sum.png')
     plt.show()
     
-    # Cleanup
+    ## Cleanup
     del [total_sum, total_mean, total_count, total_row]
     
     # Renaming sum column in all datasets
@@ -281,9 +293,17 @@ def export_tax_data(func_parcel_tax, prefix=''):
         dataset.rename(columns={'sum': 'sum (thousands)'}, inplace=True)
     del [dataset, datasets]
     
-    #Merging With Census Data
-    #county_sum_total = county_sum_total.merge(county_census, left_on='County_FIPS', right_on='County')
-
+    # Merging With Census Data
+    county_sum_total = county_sum_total.merge(county_census, left_on='County FIPS', right_on='county').reset_index()
+    county_sum_total = county_sum_total.drop(['NAME','COUNTY','Unnamed: 0',
+                                              'GEO_ID','state','county'],axis = 1)
+    
+    munic_sum_total = munic_sum_total.merge(subdiv_census, left_on='Subdiv FIPS', right_on='county subdivision').reset_index()
+    munic_sum_total = munic_sum_total.drop(['NAME','COUNTY','Unnamed: 0',
+                                              'GEO_ID','state','county'],axis = 1)
+    
+    # Cleanup
+    func_parcel_tax = func_parcel_tax.drop('_merge',axis = 1)
     
     # Export to Excel
     with pd.ExcelWriter(f'Output/{taxcode}_{prefix}_parcel_tax.xlsx',date_format=None, mode='w') as writer:

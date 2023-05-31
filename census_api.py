@@ -2,10 +2,14 @@
 """
 @author: Jordan
 
-2. 
-This script runs a function which retrieves information from the Census API based on desired geographic regions within NY.
-Census information is exported to Output/Census/...
+2. Run after Boundaries_merge.py
+    This script runs a function which retrieves information from the Census API 
+    based on desired geographic regions within NY.
 
+    INPUT: None
+    OUTPUT: Census information is exported to Output/Census/... to be used in later scripts
+    VARIABLES: retrieve_census(for_clause, title)
+    choose the geographic location desired in the census, and the title you want to be attached to the outputs. 
 
 NOTES: 
     #census spatial join
