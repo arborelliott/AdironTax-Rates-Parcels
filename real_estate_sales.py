@@ -10,43 +10,43 @@ import pandas as pd
 #%% Importing csv files. Dwnloaded all real estate transacitons from a 
 #   ten year period from counties that contain the Adirondack Park. 
 
-clinton_14_19 = pd.read_csv('Real Estate Transactions/0914_19.CSV', index_col=False, )
-clinton_20_cur = pd.read_csv('Real Estate Transactions/0920_CUR.CSV', index_col=False)
+clinton_14_19 = pd.read_csv('Input/Real Estate Transactions/0914_19.CSV', index_col=False, )
+clinton_20_cur = pd.read_csv('Input/Real Estate Transactions/0920_CUR.CSV', index_col=False)
 
-essex_14_19 = pd.read_csv('Real Estate Transactions/1514_19.CSV', index_col=False)
-essex_20_cur = pd.read_csv('Real Estate Transactions/1520_CUR.CSV', index_col=False)
+essex_14_19 = pd.read_csv('Input/Real Estate Transactions/1514_19.CSV', index_col=False)
+essex_20_cur = pd.read_csv('Input/Real Estate Transactions/1520_CUR.CSV', index_col=False)
 
-franklin_14_19 = pd.read_csv('Real Estate Transactions/1614_19.CSV', index_col=False)
-frankin_20_cur = pd.read_csv('Real Estate Transactions/1620_CUR.CSV', index_col=False)
+franklin_14_19 = pd.read_csv('Input/Real Estate Transactions/1614_19.CSV', index_col=False)
+frankin_20_cur = pd.read_csv('Input/Real Estate Transactions/1620_CUR.CSV', index_col=False)
 
-fulton_14_19 = pd.read_csv('Real Estate Transactions/1714_19.CSV', index_col=False)
-fulton_20_cur = pd.read_csv('Real Estate Transactions/1720_CUR.CSV', index_col=False)
+fulton_14_19 = pd.read_csv('Input/Real Estate Transactions/1714_19.CSV', index_col=False)
+fulton_20_cur = pd.read_csv('Input/Real Estate Transactions/1720_CUR.CSV', index_col=False)
 
-hamilton_14_19 = pd.read_csv('Real Estate Transactions/2014_19.CSV', index_col=False)
-hamilton_20_cur = pd.read_csv('Real Estate Transactions/2020_CUR.CSV', index_col=False)
+hamilton_14_19 = pd.read_csv('Input/Real Estate Transactions/2014_19.CSV', index_col=False)
+hamilton_20_cur = pd.read_csv('Input/Real Estate Transactions/2020_CUR.CSV', index_col=False)
 
-herkimer_14_19 = pd.read_csv('Real Estate Transactions/2114_19.CSV', index_col=False)
-hermiker_20_cur = pd.read_csv('Real Estate Transactions/2120_CUR.CSV', index_col=False)
+herkimer_14_19 = pd.read_csv('Input/Real Estate Transactions/2114_19.CSV', index_col=False)
+hermiker_20_cur = pd.read_csv('Input/Real Estate Transactions/2120_CUR.CSV', index_col=False)
 
-lewis_14_19 = pd.read_csv('Real Estate Transactions/2314_19.CSV', index_col=False)
-lewis_20_cur = pd.read_csv('Real Estate Transactions/2320_CUR.CSV', index_col=False)
+lewis_14_19 = pd.read_csv('Input/Real Estate Transactions/2314_19.CSV', index_col=False)
+lewis_20_cur = pd.read_csv('Input/Real Estate Transactions/2320_CUR.CSV', index_col=False)
 
-oneida_14_19 = pd.read_csv('Real Estate Transactions/3014_19.CSV', index_col=False)
-oneida_20_cur = pd.read_csv('Real Estate Transactions/3020_CUR.CSV', index_col=False)
+oneida_14_19 = pd.read_csv('Input/Real Estate Transactions/3014_19.CSV', index_col=False)
+oneida_20_cur = pd.read_csv('Input/Real Estate Transactions/3020_CUR.CSV', index_col=False)
 
-st_lawrence_14_19 = pd.read_csv('Real Estate Transactions/4014_19.CSV', index_col=False)
-st_lawrence_20_cur = pd.read_csv('Real Estate Transactions/4020_CUR.CSV', index_col=False)
+st_lawrence_14_19 = pd.read_csv('Input/Real Estate Transactions/4014_19.CSV', index_col=False)
+st_lawrence_20_cur = pd.read_csv('Input/Real Estate Transactions/4020_CUR.CSV', index_col=False)
 
-saratoga_14_19 = pd.read_csv('Real Estate Transactions/4114_19.CSV', index_col=False)
-saratoga_20_cur = pd.read_csv('Real Estate Transactions/4120_CUR.CSV', index_col=False)
+saratoga_14_19 = pd.read_csv('Input/Real Estate Transactions/4114_19.CSV', index_col=False)
+saratoga_20_cur = pd.read_csv('Input/Real Estate Transactions/4120_CUR.CSV', index_col=False)
 
 # There is a typo in line 6383 of warren_14_19 source document. street_nbr cell 
 # was empty from source material. . This change was updated manually in the csv file. 
-warren_14_19 = pd.read_csv('Real Estate Transactions/5214_19.CSV', index_col=False)
-warren_20_cur = pd.read_csv('Real Estate Transactions/5220_CUR.CSV', index_col=False)
+warren_14_19 = pd.read_csv('Input/Real Estate Transactions/5214_19.CSV', index_col=False)
+warren_20_cur = pd.read_csv('Input/Real Estate Transactions/5220_CUR.CSV', index_col=False)
 
-washington_14_19 = pd.read_csv('Real Estate Transactions/5314_19.CSV', index_col=False)
-washington_20_cur = pd.read_csv('Real Estate Transactions/5320_CUR.CSV', index_col=False)
+washington_14_19 = pd.read_csv('Input/Real Estate Transactions/5314_19.CSV', index_col=False)
+washington_20_cur = pd.read_csv('Input/Real Estate Transactions/5320_CUR.CSV', index_col=False)
 
 
 #%% Creating a dictionary of municipalities within the park. Source:
@@ -100,5 +100,5 @@ park_munis = merged_counties[merged_counties.muni_name.isin(muni)]
 non_park_munis = merged_counties[~merged_counties.muni_name.isin(muni)]
 
 #saves to csv file.
-park_munis.to_csv('park_munis.csv')
-non_park_munis.to_csv('non_park_munis.csv')
+park_munis.to_csv('Output/Real Estate/park_munis.csv')
+non_park_munis.to_csv('Output/Real Estate/non_park_munis.csv')
