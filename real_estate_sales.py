@@ -100,5 +100,6 @@ park_munis = merged_counties[merged_counties.muni_name.isin(muni)]
 non_park_munis = merged_counties[~merged_counties.muni_name.isin(muni)]
 
 #saves to csv file.
+merged_counties.to_csv('Output/Real Estate/merged_counties')
 park_munis.to_csv('Output/Real Estate/park_munis.csv')
 non_park_munis.to_csv('Output/Real Estate/non_park_munis.csv')
