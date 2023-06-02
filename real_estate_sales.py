@@ -10,49 +10,49 @@ import pandas as pd
 #%% Importing csv files. Dwnloaded all real estate transacitons from a 
 #   ten year period from counties that contain the Adirondack Park. 
 
-clinton_14_19 = pd.read_csv('Input/Real Estate Transactions/0914_19.CSV', index_col=False, )
-clinton_20_cur = pd.read_csv('Input/Real Estate Transactions/0920_CUR.CSV', index_col=False)
+clinton_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/0914_19.CSV', index_col=False)
+clinton_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/0920_CUR.CSV', index_col=False)
 
-essex_14_19 = pd.read_csv('Input/Real Estate Transactions/1514_19.CSV', index_col=False)
-essex_20_cur = pd.read_csv('Input/Real Estate Transactions/1520_CUR.CSV', index_col=False)
+essex_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/1514_19.CSV', index_col=False)
+essex_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/1520_CUR.CSV', index_col=False)
 
-franklin_14_19 = pd.read_csv('Input/Real Estate Transactions/1614_19.CSV', index_col=False)
-frankin_20_cur = pd.read_csv('Input/Real Estate Transactions/1620_CUR.CSV', index_col=False)
+franklin_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/1614_19.CSV', index_col=False)
+frankin_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/1620_CUR.CSV', index_col=False)
 
-fulton_14_19 = pd.read_csv('Input/Real Estate Transactions/1714_19.CSV', index_col=False)
-fulton_20_cur = pd.read_csv('Input/Real Estate Transactions/1720_CUR.CSV', index_col=False)
+fulton_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/1714_19.CSV', index_col=False)
+fulton_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/1720_CUR.CSV', index_col=False)
 
-hamilton_14_19 = pd.read_csv('Input/Real Estate Transactions/2014_19.CSV', index_col=False)
-hamilton_20_cur = pd.read_csv('Input/Real Estate Transactions/2020_CUR.CSV', index_col=False)
+hamilton_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/2014_19.CSV', index_col=False)
+hamilton_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/2020_CUR.CSV', index_col=False)
 
-herkimer_14_19 = pd.read_csv('Input/Real Estate Transactions/2114_19.CSV', index_col=False)
-hermiker_20_cur = pd.read_csv('Input/Real Estate Transactions/2120_CUR.CSV', index_col=False)
+herkimer_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/2114_19.CSV', index_col=False)
+hermiker_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/2120_CUR.CSV', index_col=False)
 
-lewis_14_19 = pd.read_csv('Input/Real Estate Transactions/2314_19.CSV', index_col=False)
-lewis_20_cur = pd.read_csv('Input/Real Estate Transactions/2320_CUR.CSV', index_col=False)
+lewis_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/2314_19.CSV', index_col=False)
+lewis_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/2320_CUR.CSV', index_col=False)
 
-oneida_14_19 = pd.read_csv('Input/Real Estate Transactions/3014_19.CSV', index_col=False)
-oneida_20_cur = pd.read_csv('Input/Real Estate Transactions/3020_CUR.CSV', index_col=False)
+oneida_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/3014_19.CSV', index_col=False)
+oneida_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/3020_CUR.CSV', index_col=False)
 
-st_lawrence_14_19 = pd.read_csv('Input/Real Estate Transactions/4014_19.CSV', index_col=False)
-st_lawrence_20_cur = pd.read_csv('Input/Real Estate Transactions/4020_CUR.CSV', index_col=False)
+st_lawrence_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/4014_19.CSV', index_col=False)
+st_lawrence_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/4020_CUR.CSV', index_col=False)
 
-saratoga_14_19 = pd.read_csv('Input/Real Estate Transactions/4114_19.CSV', index_col=False)
-saratoga_20_cur = pd.read_csv('Input/Real Estate Transactions/4120_CUR.CSV', index_col=False)
+saratoga_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/4114_19.CSV', index_col=False)
+saratoga_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/4120_CUR.CSV', index_col=False)
 
 # There is a typo in line 6383 of warren_14_19 source document. street_nbr cell 
 # was empty from source material. . This change was updated manually in the csv file. 
-warren_14_19 = pd.read_csv('Input/Real Estate Transactions/5214_19.CSV', index_col=False)
-warren_20_cur = pd.read_csv('Input/Real Estate Transactions/5220_CUR.CSV', index_col=False)
+warren_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/5214_19.CSV', index_col=False)
+warren_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/5220_CUR.CSV', index_col=False)
 
-washington_14_19 = pd.read_csv('Input/Real Estate Transactions/5314_19.CSV', index_col=False)
-washington_20_cur = pd.read_csv('Input/Real Estate Transactions/5320_CUR.CSV', index_col=False)
+washington_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/5314_19.CSV', index_col=False)
+washington_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/5320_CUR.CSV', index_col=False)
 
 
 #%% Creating a dictionary of municipalities within the park. Source:
     # https://apa.ny.gov/local_government/LGS/ADKTownsVillagesWebsites.pdf
     # Corinth through Tupper Lake are villages. 
-muni = ['Altona', 'Arietta', 'AuSable', 'Bellmont', 'Benson', 'Black Brook', 
+adk_muni = ['Altona', 'Arietta', 'AuSable', 'Bellmont', 'Benson', 'Black Brook', 
         'Bleecker', 'Bolton', 'Brighton', 'Broadalbin', 'Caroga', 'Chester', 
         'Chesterfield', 'Clare', 'Clifton', 'Colton', 'Corinth', 'Croghan', 
         'Crown', 'Dannemora', 'Day', 'Diana', 'Dresden', 'Duane', 'Edinburg', 
@@ -76,7 +76,7 @@ muni = ['Altona', 'Arietta', 'AuSable', 'Bellmont', 'Benson', 'Black Brook',
         ]
 
 # Creating county list for concatination 
-counties = [clinton_14_19, clinton_20_cur, essex_14_19, essex_20_cur,
+adk_counties = [clinton_14_19, clinton_20_cur, essex_14_19, essex_20_cur,
                         franklin_14_19, frankin_20_cur, hamilton_14_19, 
                         hamilton_20_cur, herkimer_14_19, hermiker_20_cur, 
                         lewis_14_19, lewis_20_cur, oneida_14_19, oneida_20_cur,
@@ -86,19 +86,70 @@ counties = [clinton_14_19, clinton_20_cur, essex_14_19, essex_20_cur,
 
 #%% Appending datasets together
 
-merged_counties = pd.concat(counties, ignore_index=True)
-merged_counties[['sale_price', 'total_av']] = merged_counties[['sale_price', 'total_av']].apply(pd.to_numeric)
+merged_adk_counties = pd.concat(adk_counties, ignore_index=True)
+merged_adk_counties[['sale_price', 'total_av']] = merged_adk_counties[['sale_price', 'total_av']].apply(pd.to_numeric)
 
 #Dropping non-arms length sales baed on arms_length_flag column  
 
-merged_counties = merged_counties.drop(merged_counties[(merged_counties['arms_length_flag'] == 'N')].index)
+merged_adk_counties = merged_adk_counties.drop(merged_adk_counties[(merged_adk_counties['arms_length_flag'] == 'N')].index)
 
 # creating two datasets for municipalities that contain the park 
 # and non-park municipalities
  
-park_munis = merged_counties[merged_counties.muni_name.isin(muni)]
-non_park_munis = merged_counties[~merged_counties.muni_name.isin(muni)]
+adk_park_munis = merged_adk_counties[merged_adk_counties.muni_name.isin(adk_muni)]
+non_adk_park_munis = merged_adk_counties[~merged_adk_counties.muni_name.isin(adk_muni)]
 
 #saves to csv file.
-park_munis.to_csv('Output/Real Estate/park_munis.csv')
-non_park_munis.to_csv('Output/Real Estate/non_park_munis.csv')
+merged_adk_counties.to_csv('Output/Real Estate/merged_adk_counties.csv')
+adk_park_munis.to_csv('Output/Real Estate/adk_park_munis.csv')
+non_adk_park_munis.to_csv('Output/Real Estate/non_adk_park_munis.csv')
+
+#%% Catskill Data
+
+
+
+#%% Catskill Real Estate Data
+
+delaware_14_19 = pd.read_csv('Input/Real Estate Transactions/CAT/1214_19.CSV', index_col=False)
+delaware_20_cur = pd.read_csv('Input/Real Estate Transactions/CAT/1220_CUR.CSV', index_col=False)
+
+greene_14_19 = pd.read_csv('Input/Real Estate Transactions/CAT/1914_19.CSV', index_col=False)
+greene_20_cur = pd.read_csv('Input/Real Estate Transactions/CAT/1920_CUR.CSV', index_col=False)
+
+sullivan_14_19 = pd.read_csv('Input/Real Estate Transactions/CAT/4814_19.CSV', index_col=False)
+sullivan_20_cur = pd.read_csv('Input/Real Estate Transactions/CAT/4820_CUR.CSV', index_col=False)
+
+#Manually corrected two typographic errors in lines 12710 of 5114_19 and 
+# line 4205 of 5120. 
+ulster_14_19 = pd.read_csv('Input/Real Estate Transactions/CAT/5114_19.CSV', index_col=False)
+ulster_20_cur = pd.read_csv('Input/Real Estate Transactions/CAT/5120_CUR.CSV', index_col=False)
+
+ 
+#%% Catskill  municipality and county dictionaries 
+
+cat_muni = [
+            'Denning', 'Lexington', 'Colchester', 'Hunter', 'Windham', 'Andes',
+            'Neversink','Woodstock','Rockland','Middletown','Rochester','Cairo',
+            'Olive','Jewett','Catskill','Hancock','Hurley','Fallsburgh',
+            'Mamakating','Rosendale','Fremont','Forestburgh','Davenport','Bethel',
+            'Marbletown','Tompkins','Walton','Lumberland','Highland','Thompson'
+            'Roxbury','Shandaken','Liberty','Gardiner','Plattekill','Shawangunk',
+            'Athens'
+            ]
+
+cat_counties = [delaware_14_19, delaware_20_cur, greene_14_19, greene_20_cur, 
+                sullivan_14_19, sullivan_20_cur, ulster_14_19, ulster_20_cur
+                ]
+
+#%% 
+merged_cat_counties = pd.concat(cat_counties, ignore_index=True)
+
+merged_cat_counties[['sale_price', 'total_av']] = merged_cat_counties[['sale_price', 'total_av']].apply(pd.to_numeric)
+
+cat_park_munis = merged_cat_counties[merged_cat_counties.muni_name.isin(cat_muni)]
+non_cat_park_munis = merged_cat_counties[~merged_cat_counties.muni_name.isin(cat_muni)]
+
+#save to csv file
+merged_cat_counties.to_csv('Output/Real Estate/merged_cat_counties.csv')
+cat_park_munis.to_csv('Output/Real Estate/cat_park_munis.csv')
+non_cat_park_munis.to_csv('Output/Real Estate/non_cat_park_munis.csv')

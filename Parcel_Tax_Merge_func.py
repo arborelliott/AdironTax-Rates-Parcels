@@ -10,7 +10,7 @@
     
     INPUT:
     OUTPUT: 
-    VARIABLES: 
+    VARIABLES:
 
 NOTES: 
 
@@ -20,6 +20,7 @@ NOTES:
 import pandas as pd
 import matplotlib.pyplot as plt
 plt.rcParams['figure.dpi'] = 300
+
 
 #%% Importing files (tax, Parcel, Census)
 
@@ -33,9 +34,8 @@ parcel_raw = pd.read_csv('Input/Property_Assessment_Data_from_Local_Assessment_R
 parcel = parcel_raw
 
 # CENSUS
-county_census = pd.read_excel('Output/Census/County_Census.xlsx', dtype = {'county':str})
-subdiv_census = pd.read_excel('Output/Census/subdiv_Census.xlsx', dtype = {'county':str,'county subdivision':str})
-school_census = pd.read_excel('Output/Census/School_Census.xlsx', dtype = {'county':str})
+county_census = pd.read_excel('Output/Census/County_Census.xlsx',dtype = {'county':str})
+subdiv_census = pd.read_excel('Output/Census/subdiv_Census.xlsx',dtype = {'county':str,'county subdivision':str})
 
 
 #%% Cleaning
@@ -104,6 +104,8 @@ parcel = parcel[parcel['Property Class'] == pclass] #532a class
 # class 990 = Other taxable state land assessments
 
 
+
+
 #%% Merging Data
 
 print(tax.columns.tolist())
@@ -114,6 +116,9 @@ merged_parcel_tax = pd.merge(parcel, tax[['County', 'County Tax Rate Outside Vil
                             left_on=['County', 'School Code', 'SWIS'], 
                             right_on=['County', 'School Code', 'SWIS'], 
                             indicator=True)
+
+# Saving FIPS column as string
+
 
 # Find unmatched rows
 unmatched_rows = merged_parcel_tax[merged_parcel_tax['_merge'] == 'left_only']
@@ -130,9 +135,11 @@ if not unmatched_rows.empty:
 #del unmatched_rows
 
 
+
 #%% Merging and Calculating tax rates for each parcel
 
 # County
+
 merged_parcel_tax['County Rate'] = merged_parcel_tax['County Tax Rate Outside Village (per $1000 value)'] / 1000
 
 # Municipal
@@ -156,6 +163,7 @@ merged_parcel_tax['School Tax Paid'] = merged_parcel_tax['School Rate'] * merged
 
 # Combined
 merged_parcel_tax['Combined Tax Paid'] = merged_parcel_tax['School Tax Paid'] + merged_parcel_tax['County Tax Paid'] + merged_parcel_tax['Municipal Tax Paid']
+
 
 
 #%% Subsetting ADK and Catskills
