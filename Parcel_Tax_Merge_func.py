@@ -188,7 +188,7 @@ adk_munic = ['Altona', 'Arietta', 'AuSable', 'Bellmont', 'Benson', 'Black Brook'
         # Corinth through Tupper Lake are villages. 
         'Corinth', 'Dannemora', 'Lake George', 'Lake Placid', 'Mayfield', 'Northville', 
         'Saranac Lake', 'Speculator', 'Tupper Lake',
-        # End village lsit 
+        # End village list 
         'Warrensburg', 'Watson', 'Waverly', 'Webb', 'Wells', 'Westport', 
         'Willsboro', 'Wilmington']
         

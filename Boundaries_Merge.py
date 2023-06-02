@@ -60,9 +60,11 @@ tcv.insert(10, 'Place FIPS', tcv['FIPS_CODE'].str[10:])
 
 #tcv.to_csv('NYS_Town_City_Village_Merged.csv', index=False)
 
-#%% Import tax levy data
+#%% Import and format tax levy data
 
 levy_raw = pd.read_csv('Input/Real_Property_Tax_Rates_Levy_Data_By_Municipality__Beginning_2004.csv')
+levy_raw.insert(4,'Village','')
+levy_raw.insert(17,'Village Tax Rate (per $1000 value)','')    
 levy = levy_raw
 
 levy.rename(columns={
@@ -78,6 +80,12 @@ levy = levy[levy['Roll Year'] == 2021]
 
 # Fix St lawrence naming
 levy['County'] = levy['County'].replace('St. Lawrence', 'St Lawrence')
+levy = levy.drop(['County Tax Rate Inside Village (per $1000 value)','Municipal Tax Rate Inside Village (per $1000 value)'], axis = 1)
+
+
+levy.to_csv('Input/Real_Property_Tax_Rates_Levy_Data_By_Municipality__Beginning_2004_VILLAGE.csv', index = False)
+
+### Append villages data
 
 #%% Merge tax levy Data with boundaries, SWIS to FIPS
 
