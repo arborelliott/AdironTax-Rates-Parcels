@@ -27,6 +27,7 @@ NOTES:
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 plt.rcParams['figure.dpi'] = 300
 
 
@@ -88,29 +89,6 @@ parcel = parcel[parcel['Roll Year'] == 2021]
 
 # Fix St lawrence naming
 tax['County'] = tax['County'].replace('St. Lawrence', 'St Lawrence')
-
-
-#%% Subseting
-
-
-### Property Class
-classdisct = {931:'532a', 980:'Easments', 940:'Reforested/other',932:'532b',990:'Other'}
-
-###############
-pclass = 931
-###############
-
-
-taxcode = classdisct[pclass]
-parcel = parcel[parcel['Property Class'] == pclass] #532a class
-
-
-# class 931 = tax 532a Taxable Forest Preserve
-# class 980 = Taxable state-owned conservation easements
-# class 940 = Reforested land and other related conservation purposes
-# class 932 = tax 532b Other State-owned land under Section 532-b, c, d, e, f, or g
-# class 990 = Other taxable state land assessments
-
 
 
 
@@ -206,10 +184,61 @@ adk_parcel_tax = merged_parcel_tax[merged_parcel_tax['County'].isin(adk_counties
 cat_counties = ['Delaware', 'Greene', 'Sullivan', 'Ulster']
 cat_parcel_tax = merged_parcel_tax[merged_parcel_tax['County'].isin(cat_counties)]
 
+# All Parcels 
+all_parcel_tax = merged_parcel_tax
+
+#%% Subseting
+
+
+# ### Property Class
+# classdisct = {931:'532a', 980:'Easments', 940:'Reforested_other',932:'532b',990:'Other'}
+
+# ###############
+# pclass = 931
+# ###############
+
+
+# taxcode = classdisct[pclass]
+# parcel = parcel[parcel['Property Class'] == pclass] #532a class
+
+
+# # class 931 = tax 532a Taxable Forest Preserve
+# # class 980 = Taxable state-owned conservation easements
+# # class 940 = Reforested land and other related conservation purposes
+# # class 932 = tax 532b Other State-owned land under Section 532-b, c, d, e, f, or g
+# # class 990 = Other taxable state land assessments
+
+
+
 
 #%% Summary tables and graphs function
 
-def export_tax_data(func_parcel_tax, prefix=''):
+def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
+    
+    
+    
+    ### Property Class
+    classdisct = {931:'532a', 980:'Easments', 940:'Reforested_other',932:'532b',990:'Other'}
+
+    ###############
+    ###############
+
+    taxcode = classdisct[pclass]
+    func_parcel_tax = func_parcel_tax[func_parcel_tax['Property Class'] == pclass] #532a class
+
+
+    # class 931 = tax 532a Taxable Forest Preserve
+    # class 980 = Taxable state-owned conservation easements
+    # class 940 = Reforested land and other related conservation purposes
+    # class 932 = tax 532b Other State-owned land under Section 532-b, c, d, e, f, or g
+    # class 990 = Other taxable state land assessments
+   
+    # Create File Path
+    folder_path = f'Output/{taxcode}'
+
+    # Create the folder if it doesn't exist
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
     
     # County table
     county_sum = func_parcel_tax.groupby(['County'])['County Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
@@ -268,28 +297,28 @@ def export_tax_data(func_parcel_tax, prefix=''):
     plt.rcParams["figure.figsize"] = [7.00, 7.00]
     plt.rcParams["figure.autolayout"] = True
     
-    plt.barh(county_sum.index, county_sum['sum'])
+    plt.barh(county_sum['County'], county_sum['sum'])
     plt.xlabel('Sum of County Tax Paid')
     plt.ylabel('County')
     plt.title(f'{prefix} Sum of County Tax Paid on {taxcode} by County (Thousands)')
     plt.yticks(rotation=0)
-    plt.savefig(f'Output/{taxcode}_{prefix}_county_sum.png')
+    plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_county_sum.png')
     plt.show()
     
-    plt.barh(munic_sum.index, munic_sum['sum'])
+    plt.barh(munic_sum['Municipality Name'], munic_sum['sum'])
     plt.ylabel('Municipality')
     plt.xlabel('Sum of Municipality Tax Paid')
     plt.title(f'{prefix} Sum of Municipality Tax Paid on {taxcode} by Municipality (Thousands)')
     plt.yticks(rotation=0, fontsize = 5)
-    plt.savefig(f'Output/{taxcode}_{prefix}_Municipality_sum.png')
+    plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_Municipality_sum.png')
     plt.show()
     
-    plt.barh(school_sum.index, school_sum['sum'])
+    plt.barh(school_sum['School District Name'], school_sum['sum'])
     plt.ylabel('School')
     plt.xlabel('Sum of School Tax Paid')
     plt.title(f'{prefix} Sum of School Tax Paid on {taxcode} by School (Thousands)')
     plt.yticks(rotation=0, fontsize = 5)
-    plt.savefig(f'Output/{taxcode}_{prefix}_School_sum.png')
+    plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_School_sum.png')
     plt.show()
     
     ## Cleanup
@@ -314,8 +343,9 @@ def export_tax_data(func_parcel_tax, prefix=''):
     func_parcel_tax = func_parcel_tax.drop('_merge',axis = 1)
     func_parcel_tax['Print Key Code'] = func_parcel_tax['Print Key Code'].astype(str)
     
+    
     # Export to Excel
-    with pd.ExcelWriter(f'Output/{taxcode}_{prefix}_parcel_tax.xlsx',date_format=None, mode='w',) as writer:
+    with pd.ExcelWriter(f'Output/{taxcode}/{taxcode}_{prefix}_parcel_tax.xlsx',date_format=None, mode='w',) as writer:
         func_parcel_tax.to_excel(writer, sheet_name = f'{taxcode} All Parcels')
         county_sum_total.to_excel(writer, sheet_name = 'County Summary')
         munic_sum_total.to_excel(writer, sheet_name = 'Municipality Summary')
@@ -324,6 +354,7 @@ def export_tax_data(func_parcel_tax, prefix=''):
                 
 #%% Functions
 ###### Data Export functions
-export_tax_data(cat_parcel_tax, prefix='cat')
-export_tax_data(adk_parcel_tax, prefix='adk')
+export_tax_data(cat_parcel_tax, prefix='cat', pclass =931)
+export_tax_data(adk_parcel_tax, prefix='adk', pclass =931)
+#export_tax_data(all_parcel_tax, prefix='all', pclass =931)
 ######
