@@ -187,29 +187,6 @@ cat_parcel_tax = merged_parcel_tax[merged_parcel_tax['County'].isin(cat_counties
 # All Parcels 
 all_parcel_tax = merged_parcel_tax
 
-#%% Subseting
-
-
-# ### Property Class
-# classdisct = {931:'532a', 980:'Easments', 940:'Reforested_other',932:'532b',990:'Other'}
-
-# ###############
-# pclass = 931
-# ###############
-
-
-# taxcode = classdisct[pclass]
-# parcel = parcel[parcel['Property Class'] == pclass] #532a class
-
-
-# # class 931 = tax 532a Taxable Forest Preserve
-# # class 980 = Taxable state-owned conservation easements
-# # class 940 = Reforested land and other related conservation purposes
-# # class 932 = tax 532b Other State-owned land under Section 532-b, c, d, e, f, or g
-# # class 990 = Other taxable state land assessments
-
-
-
 
 #%% Summary tables and graphs function
 
