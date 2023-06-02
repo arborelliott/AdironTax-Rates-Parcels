@@ -88,7 +88,8 @@ adk_counties = [clinton_14_19, clinton_20_cur, essex_14_19, essex_20_cur,
 #%% Appending datasets together
 
 merged_adk_counties = pd.concat(adk_counties, ignore_index=True)
-merged_adk_counties[['sale_price', 'total_av','print_key']] = merged_adk_counties[['sale_price', 'total_av','print_key']].astype(str)
+merged_adk_counties[['sale_price', 'total_av']] = merged_adk_counties[['sale_price', 'total_av']].astype(int)
+merged_adk_counties['print_key'] = merged_adk_counties['print_key'].astype(str)
 
 #Dropping non-arms length sales baed on arms_length_flag column  
 
@@ -145,7 +146,11 @@ cat_counties = [delaware_14_19, delaware_20_cur, greene_14_19, greene_20_cur,
 #%% 
 merged_cat_counties = pd.concat(cat_counties, ignore_index=True)
 
-merged_cat_counties[['sale_price', 'total_av']] = merged_cat_counties[['sale_price', 'total_av']].astype(str)
+merged_cat_counties[['sale_price', 'total_av']] = merged_cat_counties[['sale_price', 'total_av']].astype(int)
+merged_cat_counties['print_key'] = merged_cat_counties['print_key'].astype(str)
+
+#Dropping arms length sales 
+merged_cat_counties = merged_cat_counties.drop(merged_cat_counties[(merged_cat_counties['arms_length_flag'] == 'N')].index)
 
 cat_park_munis = merged_cat_counties[merged_cat_counties.muni_name.isin(cat_muni)]
 non_cat_park_munis = merged_cat_counties[~merged_cat_counties.muni_name.isin(cat_muni)]
@@ -154,3 +159,22 @@ non_cat_park_munis = merged_cat_counties[~merged_cat_counties.muni_name.isin(cat
 merged_cat_counties.to_csv('Output/Real Estate/merged_cat_counties.csv')
 cat_park_munis.to_csv('Output/Real Estate/cat_park_munis.csv')
 non_cat_park_munis.to_csv('Output/Real Estate/non_cat_park_munis.csv')
+
+#%% Dropping real estate sale prices less than 10k. 
+
+merged_adk_counties_10k = merged_adk_counties.drop(merged_adk_counties[(merged_adk_counties['sale_price'] < 10000)].index)
+merged_cat_counties_10k = merged_cat_counties.drop(merged_cat_counties[(merged_cat_counties['sale_price'] < 10000)].index)
+
+adk_park_munis_10k = merged_adk_counties_10k[merged_adk_counties_10k.muni_name.isin(adk_muni)]
+non_adk_park_munis_10k = merged_adk_counties_10k[~merged_adk_counties_10k.muni_name.isin(adk_muni)]
+
+cat_park_munis_10k = merged_cat_counties_10k[merged_cat_counties_10k.muni_name.isin(cat_muni)]
+non_cat_park_munis_10k = merged_cat_counties_10k[~merged_cat_counties_10k.muni_name.isin(cat_muni)]
+#%% Saving above cell to csvs.
+merged_adk_counties_10k.to_csv('Output/Real Estate/merged_adk_counties_10k.csv')
+adk_park_munis_10k.to_csv('Output/Real Estate/adk_park_munis_10k.csv')
+non_adk_park_munis_10k.to_csv('Output/Real Estate/non_adk_park_munis_10k.csv')
+
+merged_cat_counties_10k.to_csv('Output/Real Estate/merged_cat_counties_10k.csv')
+cat_park_munis_10k.to_csv('Output/Real Estate/cat_park_munis_10k.csv')
+non_cat_park_munis_10k.to_csv('Output/Real Estate/non_cat_park_munis_10k.csv')
