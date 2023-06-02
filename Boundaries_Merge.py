@@ -3,15 +3,22 @@
 @author: Jordan
 
 1. Run First
-    This script combines boundry data from 2 seperate data sets (town and city) and (villages) Combined the data set has all three. 
+    This script combines boundary data from 2 seperate data sets (town and city) and (villages) Combined the data set has all three. 
     The main purpose is to match NY SWIS codes to Census FIPS Codes
     This Script outputs NYS_Tax_rates_Levy_Roll21.csv which contains data on tax rates throughout the state, 
     which is used for the next script Parcel_tax_Merge_func.py
     
-    INPUT:
+    INPUT: 
+        1. NYS_Civil_Boundaries_TOWN_CITY.csv
+        2. NYS_Civil_Boundaries_VILLAGES.csv - Civil boundary data from NYS GIS
+        3. Real_Property_Tax_Rates_Levy_Data_By_Municipality__Beginning_2004.csv - Historical Tax rate data for NYS
+    
     OUTPUT: 
+        NYS_Tax_rates_Levy_Roll21.csv - Tax rates for 2021, With SWIS and FIPS codes
+    
     VARIABLES:
-
+        - Year of tax rates (default 2021)
+        
 NOTES: 
     
     

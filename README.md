@@ -19,7 +19,10 @@
     VARIABLES:
         - Year of tax rates (default 2021)
 
-2. ## **Census_API.py**: 2nd, Run after Boundaries_merge.py
+2. ## **Census_API.py**: 2nd, 
+
+    Run after Boundaries_merge.py
+
     This script runs a function which retrieves information from the Census API 
     based on desired geographic regions within NY.
 
@@ -29,7 +32,7 @@
     OUTPUT: 
         Census information is exported to Output/Census/... to be used in later scripts. 
         Naming based on geographic area of census
-        
+
     VARIABLES: 
         retrieve_census(for_clause, title)
     choose the geographic location desired in the census, and the title you want to be attached to the outputs. 
@@ -39,12 +42,30 @@
     https://api.census.gov/data/2020/acs/acs5/geography.html
 
 
-3. Parcel_tax_Merge_func.py
-This script imports tax rate data from the previous script, and parcel data from assessment rolls. 
+3. ## Parcel_tax_Merge_func.py
 
-The Script cleans the data, subsets to a given year and property class, and merges the parcel data with the tax rate data to calculate the amount of taxes paid on each parcel. 
+    This should be run after Boundaries_Merge and census_api
+    This script imports tax rate data from the previous script, and parcel data from assessment rolls. 
+    The Script cleans the data, subsets to a given year and property class, and merges the parcel data with the tax rate data to calculate the amount of taxes paid on each parcel. 
+    The script outputs 3 graphs per region of interest, and an excel file summarizing the findings.  
+    
+    INPUT:
+        1. NYS_Tax_rates_Levy_Roll21.csv (From Boundaries_Merge.py)
+        2. Property_Assessment_Data_from_Local_Assessment_Rolls_931_980_940_932_990.csv - Assessment rolls from NYS
+        3. Census data (From Census_api), ex: Census/County_Census.xlsx
+    OUTPUT:
+        {taxcode}_{prefix}_parcel_tax.xlsx - Summary of state tax expenditure by locality. 
+        
+    VARIABLES:
+        Property class
+        Tax year
 
-The script outputs 3 graphs per region of interest, and an excel file summarizing the findings. 
 
-Hedonic Analysis Inputs
-https://drive.google.com/drive/u/1/folders/1L8UAh_Wk8CmldDZbjkQG0p5GPbFtZ3Hq
+    This script imports tax rate data from the previous script, and parcel data from assessment rolls. 
+
+    The Script cleans the data, subsets to a given year and property class, and merges the parcel data with the tax rate data to calculate the amount of taxes paid on each parcel. 
+
+    The script outputs 3 graphs per region of interest, and an excel file summarizing the findings. 
+
+    Hedonic Analysis Inputs
+    https://drive.google.com/drive/u/1/folders/1L8UAh_Wk8CmldDZbjkQG0p5GPbFtZ3Hq
