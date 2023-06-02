@@ -18,3 +18,6 @@ This script imports tax rate data from the previous script, and parcel data from
 The Script cleans the data, subsets to a given year and property class, and merges the parcel data with the tax rate data to calculate the amount of taxes paid on each parcel. 
 
 The script outputs 3 graphs per region of interest, and an excel file summarizing the findings. 
+
+Hedonic Analysis Inputs
+https://drive.google.com/drive/u/1/folders/1L8UAh_Wk8CmldDZbjkQG0p5GPbFtZ3Hq
