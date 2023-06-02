@@ -28,6 +28,7 @@ hamilton_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/2020_CUR.CSV',
 herkimer_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/2114_19.CSV', index_col=False)
 hermiker_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/2120_CUR.CSV', index_col=False)
 
+#Manually deleted row 8674 due to typo in print key. 
 lewis_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/2314_19.CSV', index_col=False)
 lewis_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/2320_CUR.CSV', index_col=False)
 
@@ -87,7 +88,7 @@ adk_counties = [clinton_14_19, clinton_20_cur, essex_14_19, essex_20_cur,
 #%% Appending datasets together
 
 merged_adk_counties = pd.concat(adk_counties, ignore_index=True)
-merged_adk_counties[['sale_price', 'total_av']] = merged_adk_counties[['sale_price', 'total_av']].apply(pd.to_numeric)
+merged_adk_counties[['sale_price', 'total_av','print_key']] = merged_adk_counties[['sale_price', 'total_av','print_key']].astype(str)
 
 #Dropping non-arms length sales baed on arms_length_flag column  
 
