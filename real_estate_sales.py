@@ -145,7 +145,7 @@ cat_counties = [delaware_14_19, delaware_20_cur, greene_14_19, greene_20_cur,
 #%% 
 merged_cat_counties = pd.concat(cat_counties, ignore_index=True)
 
-merged_cat_counties[['sale_price', 'total_av']] = merged_cat_counties[['sale_price', 'total_av']].apply(pd.to_numeric)
+merged_cat_counties[['sale_price', 'total_av']] = merged_cat_counties[['sale_price', 'total_av']].astype(str)
 
 cat_park_munis = merged_cat_counties[merged_cat_counties.muni_name.isin(cat_muni)]
 non_cat_park_munis = merged_cat_counties[~merged_cat_counties.muni_name.isin(cat_muni)]
