@@ -78,7 +78,7 @@ parcel = parcel[parcel['Property Class'] == pclass] #532a class
 # class 932 = tax 532b Other State-owned land under Section 532-b, c, d, e, f, or g
 # class 990 = Other taxable state land assessments
 
-#%%
+#%% Merging
 
 print(tax.columns.tolist())
 merged_parcel_tax = pd.merge(parcel, tax, 
@@ -98,10 +98,40 @@ if not unmatched_rows.empty:
 # Export unmatched rows to CSV
     unmatched_rows.to_csv('Output/unmatched_data.csv', index=False)
 
-#%%
+#%% Calculations
+
+# Convert to Percentage
 merged_parcel_tax['Village Rate'] = merged_parcel_tax['Village Tax Rate (per $1000 value)'] / 1000
+# Rate * Assessment Total
 merged_parcel_tax['Village Tax Paid'] = merged_parcel_tax['Village Rate'] * merged_parcel_tax['Assessment Total'] /1000
 total_assessment = merged_parcel_tax['Village Tax Paid'].sum()
 
-
+#%%
+def export_tax_data(func_parcel_tax, prefix=''):
+    
+    # County table
+    vil_sum = func_parcel_tax.groupby(['Village'])['Village Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
+    #vil_sum['County FIPS'] = func_parcel_tax.groupby('County')['County FIPS'].first().reset_index(drop=True) # inclue county FIPS code
+    vil_sum['sum'] = vil_sum['sum'].round(2)
+    
+    # County table (total row)
+    total_sum = vil_sum['sum'].sum()
+    total_mean = vil_sum['mean'].mean()
+    total_count = vil_sum['count'].sum()
+    
+    total_row = pd.Series({'sum': total_sum, 'mean': total_mean, 'count': total_count}, name=' County Total')
+    vil_sum_total = vil_sum.append(total_row)
+    
+    overall_total = pd.DataFrame(columns=['sum', 'mean', 'count'])
+    overall_total = overall_total.append(total_row)
+    
+    # Cleanup
+    func_parcel_tax = func_parcel_tax.drop('_merge',axis = 1)
+    
+    # Export to Excel
+    with pd.ExcelWriter(f'Output/{taxcode}_{prefix}_parcel_tax.xlsx',date_format=None, mode='w') as writer:
+        func_parcel_tax.to_excel(writer, sheet_name = f'{taxcode} All Parcels')
+        vil_sum_total.to_excel(writer, sheet_name = 'Village Summary')
+    
+export_tax_data(merged_parcel_tax, prefix='vil')
 
