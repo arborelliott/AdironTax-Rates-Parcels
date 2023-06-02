@@ -1,7 +1,7 @@
 # ADK_Census_data
  
  Order of operations
-1. **Boundaries_Merge.py**: 1st
+1. ## **Boundaries_Merge.py**: 1st
 
     This script combines boundary data from 2 seperate data sets (town and city) and (villages) Combined the data set has all three. 
     The main purpose is to match NY SWIS codes to Census FIPS Codes
@@ -15,26 +15,28 @@
 
     OUTPUT: 
         NYS_Tax_rates_Levy_Roll21.csv - Tax rates for 2021, With SWIS and FIPS codes
-        
+
     VARIABLES:
         - Year of tax rates (default 2021)
 
-2. **Census_API.py**: 2nd, Run after Boundaries_merge.py
+2. ## **Census_API.py**: 2nd, Run after Boundaries_merge.py
     This script runs a function which retrieves information from the Census API 
     based on desired geographic regions within NY.
 
     INPUT: 
         Data received from census API Request
+
     OUTPUT: 
         Census information is exported to Output/Census/... to be used in later scripts. 
         Naming based on geographic area of census
+        
     VARIABLES: 
         retrieve_census(for_clause, title)
     choose the geographic location desired in the census, and the title you want to be attached to the outputs. 
 
-# Useful Links
-https://api.census.gov/data/2020/acs/acs5/variables.html
-https://api.census.gov/data/2020/acs/acs5/geography.html
+    **Useful Links**
+    https://api.census.gov/data/2020/acs/acs5/variables.html
+    https://api.census.gov/data/2020/acs/acs5/geography.html
 
 
 3. Parcel_tax_Merge_func.py
