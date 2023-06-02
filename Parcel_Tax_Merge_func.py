@@ -9,8 +9,16 @@
     The script outputs 3 graphs per region of interest, and an excel file summarizing the findings.  
     
     INPUT:
-    OUTPUT: 
+        1. NYS_Tax_rates_Levy_Roll21.csv (From Boundaries_Merge.py)
+        2. Property_Assessment_Data_from_Local_Assessment_Rolls_931_980_940_932_990.csv - Assessment rolls from NYS
+        3. Census data (From Census_api), ex: Census/County_Census.xlsx
+    OUTPUT:
+        {taxcode}_{prefix}_parcel_tax.xlsx - Summary of state tax expenditure by locality. 
+        
     VARIABLES:
+        Property class
+        Tax year
+        
 
 NOTES: 
 
@@ -30,7 +38,7 @@ tax_raw = pd.read_csv('Input/NYS_Tax_rates_Levy_Roll21.csv',dtype = {'FIPS_CODE'
 tax = tax_raw
 
 # PARCEL
-parcel_raw = pd.read_csv('Input/Property_Assessment_Data_from_Local_Assessment_Rolls_931_980_940_932_990.csv')
+parcel_raw = pd.read_csv('Input/Property_Assessment_Data_from_Local_Assessment_Rolls_931_980_940_932_990.csv',dtype = {'Print Key Code':str})
 parcel = parcel_raw
 
 # CENSUS
@@ -304,15 +312,16 @@ def export_tax_data(func_parcel_tax, prefix=''):
     
     # Cleanup
     func_parcel_tax = func_parcel_tax.drop('_merge',axis = 1)
+    func_parcel_tax['Print Key Code'] = func_parcel_tax['Print Key Code'].astype(str)
     
     # Export to Excel
-    with pd.ExcelWriter(f'Output/{taxcode}_{prefix}_parcel_tax.xlsx',date_format=None, mode='w') as writer:
+    with pd.ExcelWriter(f'Output/{taxcode}_{prefix}_parcel_tax.xlsx',date_format=None, mode='w',) as writer:
         func_parcel_tax.to_excel(writer, sheet_name = f'{taxcode} All Parcels')
         county_sum_total.to_excel(writer, sheet_name = 'County Summary')
         munic_sum_total.to_excel(writer, sheet_name = 'Municipality Summary')
         school_sum_total.to_excel(writer, sheet_name = 'School Summary')
         overall_total.to_excel(writer, sheet_name = 'Overall Summary')
-
+                
 #%% Functions
 ###### Data Export functions
 export_tax_data(cat_parcel_tax, prefix='cat')
