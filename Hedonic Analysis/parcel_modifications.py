@@ -47,7 +47,7 @@ trim = raw[raw['COUNTY_NAME'].isin(county_name)]
 #Creating a sample csv of the centroid data without geometry
 adk_sample = trim.sample(n=1000,random_state=999)
 adk_sample = adk_sample.drop(columns='geometry')
-adk_sample.to_csv('Outputs/adk_centroids_sample.csv')
+adk_sample.to_csv('Output/adk_centroids_sample.csv')
 
 adk_sample_values = adk_sample['PRINT_KEY'].value_counts(dropna=False)
 
@@ -93,16 +93,16 @@ print(trim['SWIS_PRINT_KEY_ID'].value_counts())
 #%% Stripping and exporting centroid data into geospatial file and data attribute file for easier handling
 
 trim_geo = trim[['SWIS_PRINT_KEY_ID','geometry']]
-trim_geo.to_file('Outputs/parcels.gpkg',layer='adk_counties')
+trim_geo.to_file('Output/parcels.gpkg',layer='adk_counties')
 
 trim_data = trim.loc[:,trim.columns!='geometry']
-trim_data.to_csv('Outputs/Centroid_parcels_data.csv',index=False)
-trim_data.to_pickle('Outputs/Centroid_parcels_data.zip')
+trim_data.to_csv('Output/Centroid_parcels_data.csv',index=False)
+trim_data.to_pickle('Output/Centroid_parcels_data.zip')
 
-trim3 = pd.read_pickle('Outputs/Centroid_parcels_data.zip')
+trim3 = pd.read_pickle('Output/Centroid_parcels_data.zip')
 equals2 = trim_data.equals(trim3)
 
-trim2 = pd.read_csv('Outputs/Centroid_parcels_data.csv',dtype=str)
+trim2 = pd.read_csv('Output/Centroid_parcels_data.csv',dtype=str)
 equals = trim_data.astype(str).equals(trim2)
 
 
@@ -111,7 +111,7 @@ equals = trim_data.astype(str).equals(trim2)
 
 def filt_exp(county):
     filtered = trim[trim['COUNTY_NAME']==county]
-    filtered.to_file('Outputs/parcels.gpkg',layer=f'{county}_centroids')
+    filtered.to_file('Output/parcels.gpkg',layer=f'{county}_centroids')
     return filtered
 
 Clinton = filt_exp('Clinton')
