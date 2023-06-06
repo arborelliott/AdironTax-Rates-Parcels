@@ -236,7 +236,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     county_sum['County FIPS'] = func_parcel_tax.groupby('County')['County FIPS'].first().reset_index(drop=True) # inclue county FIPS code
     county_sum['sum'] = county_sum['sum'].round(2)
     
-    # County table (total row)
+    ## County table (total row)
     total_sum = county_sum['sum'].sum()
     total_mean = county_sum['mean'].mean()
     total_count = county_sum['count'].sum()
@@ -252,7 +252,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     munic_sum['Subdiv FIPS'] = func_parcel_tax.groupby('Municipality Name')['Subdiv FIPS'].first().reset_index(drop=True)
     munic_sum['sum'] = munic_sum['sum'].round(2)
     
-    # Municipality table (total row)
+    ## Municipality table (total row)
     total_sum = munic_sum['sum'].sum()
     total_mean = munic_sum['mean'].mean()
     total_count = munic_sum['count'].sum()
@@ -266,7 +266,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     school_sum = func_parcel_tax.groupby(['School District Name'])['School Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
     school_sum['sum'] = school_sum['sum'].round(2)
     
-    # School table (total row)
+    ## School table (total row)
     total_sum = school_sum['sum'].sum()
     total_mean = school_sum['mean'].mean()
     total_count = school_sum['count'].sum()
@@ -275,13 +275,23 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     school_sum_total = school_sum.append(total_row)
     overall_total = overall_total.append(total_row)
     
-    # Overall Table 
+    ### Overall Table 
     total_sum = overall_total['sum'].sum()
     total_mean = overall_total['mean'].mean()
     total_count = school_sum['count'].sum()
     total_row = pd.Series({'sum': total_sum, 'mean': total_mean, 'count': total_count}, name='Overall Total')
     overall_total = overall_total.append(total_row)
     
+    # Locality totals joined to main parcels list
+    func_parcel_tax = func_parcel_tax.merge(county_sum_total[['sum','County FIPS']], on='County FIPS', how='left')
+    func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total County Tax Received (k)'})
+    
+    func_parcel_tax = func_parcel_tax.merge(munic_sum_total[['sum','Subdiv FIPS']], on='Subdiv FIPS', how='left')
+    func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total Municipal Tax Received (k)'})
+    
+    func_parcel_tax = func_parcel_tax.merge(school_sum_total[['sum','School District Name']], on='School District Name', how='left')
+    func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total School Tax Received (k)'})
+                                                                         
     
     ## Graphs
     plt.rcParams["font.family"] = "Times New Roman"
@@ -291,7 +301,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     plt.barh(county_sum['County'], county_sum['sum'])
     plt.xlabel('Sum of County Tax Paid')
     plt.ylabel('County')
-    plt.title(f'{prefix} Sum of County Tax Paid on {taxcode} by County (Thousands)')
+    plt.title(f'{prefix} Sum of County Tax Paid on {taxcode} by County (k)')
     plt.yticks(rotation=0)
     plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_county_sum.png')
     plt.show()
@@ -299,7 +309,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     plt.barh(munic_sum['Municipality Name'], munic_sum['sum'])
     plt.ylabel('Municipality')
     plt.xlabel('Sum of Municipality Tax Paid')
-    plt.title(f'{prefix} Sum of Municipality Tax Paid on {taxcode} by Municipality (Thousands)')
+    plt.title(f'{prefix} Sum of Municipality Tax Paid on {taxcode} by Municipality (k)')
     plt.yticks(rotation=0, fontsize = 5)
     plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_Municipality_sum.png')
     plt.show()
@@ -307,7 +317,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     plt.barh(school_sum['School District Name'], school_sum['sum'])
     plt.ylabel('School')
     plt.xlabel('Sum of School Tax Paid')
-    plt.title(f'{prefix} Sum of School Tax Paid on {taxcode} by School (Thousands)')
+    plt.title(f'{prefix} Sum of School Tax Paid on {taxcode} by School (k)')
     plt.yticks(rotation=0, fontsize = 5)
     plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_School_sum.png')
     plt.show()
@@ -318,17 +328,18 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     # Renaming sum column in all datasets
     datasets = [county_sum_total, munic_sum_total, school_sum_total, overall_total]
     for dataset in datasets:
-        dataset.rename(columns={'sum': 'sum (thousands)'}, inplace=True)
+        dataset.rename(columns={'sum': 'sum (k)'}, inplace=True)
     del [dataset, datasets]
     
     # Merging With Census Data
-    county_sum_total = county_sum_total.merge(county_census, left_on='County FIPS', right_on='county').reset_index()
+    county_sum_total = county_sum_total.merge(county_census, left_on='County FIPS', right_on='county',how = 'left')
     county_sum_total = county_sum_total.drop(['NAME','COUNTY','Unnamed: 0',
                                               'GEO_ID','state','county'],axis = 1)
     
-    munic_sum_total = munic_sum_total.merge(subdiv_census, left_on='Subdiv FIPS', right_on='county subdivision').reset_index()
+    munic_sum_total = munic_sum_total.merge(subdiv_census, left_on='Subdiv FIPS', right_on='county subdivision',how = 'left')
     munic_sum_total = munic_sum_total.drop(['NAME','COUNTY','Unnamed: 0',
                                               'GEO_ID','state','county'],axis = 1)
+    
     
     # Cleanup
     func_parcel_tax = func_parcel_tax.drop('_merge',axis = 1)
@@ -346,10 +357,10 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
 #%% Functions
 ###### Data Export functions
 
-#export_tax_data(cat_parcel_tax, prefix='cat', pclass =931)
-#export_tax_data(adk_parcel_tax, prefix='adk', pclass =931)
-#export_tax_data(all_parcel_tax, prefix='all', pclass =931)
+export_tax_data(cat_parcel_tax, prefix='cat', pclass =931)
+export_tax_data(adk_parcel_tax, prefix='adk', pclass =931)
+export_tax_data(all_parcel_tax, prefix='all', pclass =931)
 
-# adk/cat region, all parcels, all tax codes. 
-export_tax_data(all_parcel_tax, prefix='all', pclass ='Allclass')
+## adk/cat region, all parcels, all tax codes. 
+#export_tax_data(all_parcel_tax, prefix='all', pclass ='Allclass')
 ######
