@@ -77,10 +77,10 @@ merge_tc = pd.merge(tax, centroid,
                                       right_on=['SWIS','PRINT_KEY'],
                                       indicator=True)
 # many to one sales
-# merge_tcs = pd.merge(merge_tc,sales,
-#                      how = 'right',
-#                      left_on=['County','Local SWIS','School Code'],
-#                      right_on=['county_name','swis_code','school_code'])
+merge_tcs = pd.merge(merge_tc,sales,
+                      how = 'right',
+                      left_on=['County','Local SWIS','School Code'],
+                      right_on=['county_name','swis_code','school_code'])
 
 
 # Tax/Centroid and Sales (How many 532a sales within the year)
