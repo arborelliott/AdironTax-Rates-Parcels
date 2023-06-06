@@ -21,6 +21,7 @@
         
 
 NOTES: 
+    Switch subsetting to municipalities instead of counties
 
     
 """
@@ -39,7 +40,17 @@ tax_raw = pd.read_csv('Input/NYS_Tax_rates_Levy_Roll21.csv',dtype = {'FIPS_CODE'
 tax = tax_raw
 
 # PARCEL
+#   Select Codes
 parcel_raw = pd.read_csv('Input/Property_Assessment_Data_from_Local_Assessment_Rolls_931_980_940_932_990.csv',dtype = {'Print Key Code':str})
+
+#   All PROPERTIES AND CODES ***VERY SLOW***
+#       Only needed with first run
+#parcel_raw = pd.read_csv('Input/Property_Assessment_Data_from_Local_Assessment_Rolls.csv')
+#parcel_raw.to_pickle('Input/Property_Assessment_Data_from_Local_Assessment_Rolls.pkl')
+
+#parcel_raw = pd.read_pickle('Input/Property_Assessment_Data_from_Local_Assessment_Rolls.pkl')
+
+#
 parcel = parcel_raw
 
 # CENSUS
@@ -187,7 +198,6 @@ cat_parcel_tax = merged_parcel_tax[merged_parcel_tax['County'].isin(cat_counties
 # All Parcels 
 all_parcel_tax = merged_parcel_tax
 
-
 #%% Summary tables and graphs function
 
 def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
@@ -200,8 +210,12 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     ###############
     ###############
 
-    taxcode = classdisct[pclass]
-    func_parcel_tax = func_parcel_tax[func_parcel_tax['Property Class'] == pclass] #532a class
+    taxcode = 'Allclass'
+    
+    if pclass != 'Allclass': # if pclass is not None, subset based on class code. 
+        taxcode = classdisct[pclass]
+        func_parcel_tax = func_parcel_tax[func_parcel_tax['Property Class'] == pclass]
+
 
 
     # class 931 = tax 532a Taxable Forest Preserve
@@ -331,7 +345,11 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
                 
 #%% Functions
 ###### Data Export functions
-export_tax_data(cat_parcel_tax, prefix='cat', pclass =931)
-export_tax_data(adk_parcel_tax, prefix='adk', pclass =931)
+
+#export_tax_data(cat_parcel_tax, prefix='cat', pclass =931)
+#export_tax_data(adk_parcel_tax, prefix='adk', pclass =931)
 #export_tax_data(all_parcel_tax, prefix='all', pclass =931)
+
+# adk/cat region, all parcels, all tax codes. 
+export_tax_data(all_parcel_tax, prefix='all', pclass ='Allclass')
 ######
