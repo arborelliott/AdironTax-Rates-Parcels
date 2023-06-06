@@ -59,23 +59,37 @@ sales['school_code'] = sales['school_code'].str.replace('\.0$', '')
 
 #%% Merging data sets
 
-# Tax and Centroid
-merge_tc = pd.merge(tax[tax['Grid Coordinates East'] != 0], centroid[centroid['GRID_EAST'] != 0],
-                                      left_on=['Grid Coordinates East','Grid Coordinates North','Print Key Code'],
-                                      right_on=['GRID_EAST','GRID_NORTH','PRINT_KEY'],
-                                      indicator=True)
-
-# Tax/Centroid and Sales
-merge_tcs = pd.merge(merge_tc[merge_tc['Grid Coordinates East'] != 0], sales[sales['grid_east'] != 0],
-                                      left_on=['Grid Coordinates East','Grid Coordinates North'],
-                                      right_on=['grid_east','grid_north'])
 
 # Converting columns to string
-# merge_sales_centroid['print_key'] = merge_sales_centroid['print_key'].astype(str)
-# merge_sales_centroid['school_code'] = merge_sales_centroid['school_code'].astype(str)
+tax['SWIS'] = tax['SWIS'].astype(str)
+tax['Print Key Code'] = tax['Print Key Code'].astype(str)
+
+centroid['SWIS'] = centroid['SWIS'].astype(str)
+centroid['PRINT_KEY'] = centroid['PRINT_KEY'].astype(str)
+
+sales['swis_code'] = sales['swis_code'].astype(str)
+sales['print_key'] = sales['print_key'].astype(str)
+sales['school_code'] = sales['school_code'].astype(str)
+
+# Tax and Centroid
+merge_tc = pd.merge(tax, centroid,
+                                      left_on=['SWIS','Print Key Code'],
+                                      right_on=['SWIS','PRINT_KEY'],
+                                      indicator=True)
+# many to one sales
+# merge_tcs = pd.merge(merge_tc,sales,
+#                      how = 'right',
+#                      left_on=['County','Local SWIS','School Code'],
+#                      right_on=['county_name','swis_code','school_code'])
 
 
-#Dropping un-needed cols
+# Tax/Centroid and Sales (How many 532a sales within the year)
+merge_tcs_select = pd.merge(merge_tc,sales, # this is local swis
+                                      left_on=['Local SWIS','Print Key Code'],
+                                      right_on=['swis_code','print_key'])
+
+
+# Dropping un-needed cols
 for df in [tax,centroid,sales]:
     print(df.columns.tolist())
     print()
