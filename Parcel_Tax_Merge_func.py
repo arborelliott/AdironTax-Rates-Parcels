@@ -29,6 +29,7 @@ NOTES:
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import re
 plt.rcParams['figure.dpi'] = 300
 
 
@@ -49,13 +50,16 @@ parcel_raw = pd.read_csv('Input/Property_Assessment_Data_from_Local_Assessment_R
 parcel = parcel_raw
 
 # CENSUS
+# Source: Retrieved from Census API
 county_census = pd.read_excel('Output/Census/County_Census.xlsx',dtype = {'county':str})
 subdiv_census = pd.read_excel('Output/Census/subdiv_Census.xlsx',dtype = {'county':str,'county subdivision':str})
 
 # LOCALITY BUDGETS
+# Source: https://wwe1.osc.state.ny.us/localgov/findata/financial-data-for-local-governments.cfm
+# Files manually edited to remove un-needed formatting rows
 county_budget = pd.read_excel('Input/Locality Spending/levelone21_county.xlsx')
 town_budget = pd.read_excel('Input/Locality Spending/levelone21_town.xlsx')
-
+school_budget = pd.read_excel('Input/Locality Spending/levelone21_schooldistrict.xlsx')
 
 #%% Cleaning
 
@@ -104,6 +108,26 @@ tax['County'] = tax['County'].replace('St. Lawrence', 'St Lawrence')
 county_budget = county_budget[county_budget['Real Property Taxes and Assessments'] != 'Not Filed']
 town_budget = town_budget[town_budget['Real Property Taxes and Assessments'] != 'Not Filed']
 
+# Formatting name column for join 
+
+county_budget['County'] = county_budget['County'].replace('St. Lawrence', 'St Lawrence')
+
+# Function to remove specified words from a string using regular expressions
+def remove_words(text, words):
+    pattern = r'\b(?:{})\b'.format('|'.join(words))
+    return re.sub(pattern, '', text, flags=re.IGNORECASE).strip()
+
+words_to_remove = ["central", "school", "district","Free","City","Union","Common","Academy","and","High"]
+school_budget['School District Name'] = school_budget['Entity Name'].apply(lambda x: remove_words(x, words_to_remove))
+
+## Fixing Specific school names
+replacements = {
+    'Boquet Valley    at Elizabethtown-Lewis-Westport': 'Boquet Valley',
+    'Oppenheim-Ephratah-St. Johnsville':'Oppenheim-Ephratah-St.Johnsvil',
+    'Saint Regis Falls': 'St. Regis Falls',
+    'Van Hornesville-Owen D Young':'Van Hornesville-Owen D. Young'}
+
+school_budget['School District Name'] = school_budget['School District Name'].replace(replacements, regex=True)
 
 #%% Merging Data
 
@@ -292,17 +316,38 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     county_sum_total = county_sum_total.drop(['Real Property Taxes and Assessments', 
                                               'Local Revenues','Total Revenues'], axis = 1)
     
+    
     ## Municipal budget to Municipal summary table
     town_budget['Municipality Name'] = town_budget['Entity Name'].str.replace('^Town of ', '', regex=True)
     munic_sum_total = munic_sum_total.merge(town_budget[['Municipality Name','Real Property Taxes and Assessments',
                                                              'Local Revenues','Total Revenues']],
-                                              on = 'Municipality Name', how = 'left')
-    ### Converting to (k)
+                                              on = 'Municipality Name', how = 'left', indicator = True)
+    failed_rows = munic_sum_total[munic_sum_total['_merge'] != 'both']
+    failed_rows.to_csv('failed_munic_rows.csv')
+    munic_sum_total = munic_sum_total.drop(['_merge'],axis=1)
     
+    ### Converting to (k)
     munic_sum_total['Real Property Taxes and Assessments (k)'] = munic_sum_total['Real Property Taxes and Assessments'] /1000
     munic_sum_total['Local Revenues (k)'] = munic_sum_total['Local Revenues'] /1000
     munic_sum_total['Total Revenues (k)'] = munic_sum_total['Total Revenues'] /1000
     munic_sum_total = munic_sum_total.drop(['Real Property Taxes and Assessments',
+                                                             'Local Revenues','Total Revenues'], axis = 1)
+    
+    
+    ## School Budget to School Summary Table
+    school_sum_total = school_sum_total.merge(school_budget[['School District Name','Real Property Taxes and Assessments',
+                                                             'Local Revenues','Total Revenues']],
+                                              on = 'School District Name', how = 'left', indicator = True)
+    
+    # Use the below code to track schools which failed to merge
+    #failed_rows = school_sum_total[school_sum_total['_merge'] != 'both']
+    #failed_rows.to_csv('failed_school_rows.csv')
+    school_sum_total = school_sum_total.drop(['_merge'],axis=1)
+    ## Converting to (K)
+    school_sum_total['Real Property Taxes and Assessments (k)'] = school_sum_total['Real Property Taxes and Assessments'] /1000
+    school_sum_total['Local Revenues (k)'] = school_sum_total['Local Revenues'] /1000
+    school_sum_total['Total Revenues (k)'] = school_sum_total['Total Revenues'] /1000
+    school_sum_total = school_sum_total.drop(['Real Property Taxes and Assessments',
                                                              'Local Revenues','Total Revenues'], axis = 1)
 
     # Calculating percentage of revenue from select tax
@@ -316,7 +361,12 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     munic_sum_total['% Local revenue from select tax'] = munic_sum_total['sum'] / munic_sum_total['Local Revenues (k)']
     munic_sum_total['% Total revenue from select tax'] = munic_sum_total['sum'] / munic_sum_total['Total Revenues (k)']
 
-    
+    ## School
+    school_sum_total['% Property revenue from select tax'] = school_sum_total['sum'] / school_sum_total['Real Property Taxes and Assessments (k)']
+    school_sum_total['% Local revenue from select tax'] = school_sum_total['sum'] / school_sum_total['Local Revenues (k)']
+    school_sum_total['% Total revenue from select tax'] = school_sum_total['sum'] / school_sum_total['Total Revenues (k)'] 
+
+
    ## Graphs
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["figure.figsize"] = [7.00, 7.00]

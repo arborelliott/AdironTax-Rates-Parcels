@@ -1,0 +1,14 @@
+,Municipality Name,sum,mean,count,Subdiv FIPS,Real Property Taxes and Assessments,Local Revenues,Total Revenues,_merge
+2,Ausable,0.39,0.1971255,2.0,03221,,,,left_only
+21,Clare,0.22,0.03670073000000001,6.0,15792,,,,left_only
+28,Crown Point,43.04,1.3884287096774193,31.0,19246,,,,left_only
+34,Edinburg,0.03,0.034164,1.0,23591,,,,left_only
+56,Inlet,377.24,2.6016804616551723,145.0,37495,,,,left_only
+77,Morehouse,326.68,0.9176503174157302,356.0,48340,,,,left_only
+89,Pitcairn,4.6,0.2555928888888889,18.0,58266,,,,left_only
+99,"Saratoga Springs, Outside",0.0,0.0,4.0,65255,,,,left_only
+103,Steuben,0.0,0.0,1.0,71212,,,,left_only
+106,Thurman,115.66,0.8381420289855073,138.0,73814,,,,left_only
+115,Waverly,13.92,0.9945849214285712,14.0,78795,,,,left_only
+118,Western,0.0,0.0,2.0,79862,,,,left_only
+124,,10595.31,1.1077554952843691,9556.0,,,,,left_only
