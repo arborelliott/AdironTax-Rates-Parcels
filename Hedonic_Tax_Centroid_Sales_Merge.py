@@ -84,9 +84,9 @@ merge_tcs = pd.merge(merge_tc,sales,
 
 
 # Tax/Centroid and Sales (How many 532a sales within the year)
-merge_tcs_select = pd.merge(merge_tc,sales, # this is local swis
-                                      left_on=['Local SWIS','Print Key Code'],
-                                      right_on=['swis_code','print_key'])
+# merge_tcs_select = pd.merge(merge_tc,sales, # this is local swis
+#                                       left_on=['Local SWIS','Print Key Code'],
+#                                       right_on=['swis_code','print_key'])
 
 
 # Dropping un-needed cols
