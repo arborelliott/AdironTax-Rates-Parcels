@@ -280,16 +280,6 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     total_count = school_sum['count'].sum()
     total_row = pd.Series({'sum': total_sum, 'mean': total_mean, 'count': total_count}, name='Overall Total')
     overall_total = overall_total.append(total_row)
-    
-    # Locality totals joined to main parcels list
-    func_parcel_tax = func_parcel_tax.merge(county_sum_total[['sum','County FIPS']], on='County FIPS', how='left')
-    func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total County Select Tax Received (k)'})
-    
-    func_parcel_tax = func_parcel_tax.merge(munic_sum_total[['sum','Subdiv FIPS']], on='Subdiv FIPS', how='left')
-    func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total Municipal Select Tax Received (k)'})
-    
-    func_parcel_tax = func_parcel_tax.merge(school_sum_total[['sum','School District Name']], on='School District Name', how='left')
-    func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total School Select Tax Received (k)'})
                                                                          
     # Joining locality budgets to parcels
     ## County Budget to County Summary table
@@ -330,6 +320,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     #failed_rows = school_sum_total[school_sum_total['_merge'] != 'both']
     #failed_rows.to_csv('failed_school_rows.csv')
     school_sum_total = school_sum_total.drop(['_merge'],axis=1)
+    
     ## Converting to (K)
     school_sum_total['School Real Property Taxes and Assessments (k)'] = school_sum_total['Real Property Taxes and Assessments'] /1000
     school_sum_total['School Local Revenues (k)'] = school_sum_total['Local Revenues'] /1000
@@ -353,6 +344,21 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     school_sum_total['% School Local revenue from select tax'] = school_sum_total['sum'] / school_sum_total['School Local Revenues (k)']
     school_sum_total['% School Total revenue from select tax'] = school_sum_total['sum'] / school_sum_total['School Total Revenues (k)'] 
 
+    # Locality totals joined to main parcels list
+    func_parcel_tax = func_parcel_tax.merge(county_sum_total[['County', 'sum', 'County FIPS',
+                                                               'County Real Property Taxes and Assessments (k)', 'County Local Revenues (k)', 
+                                                               'County Total Revenues (k)', '% County Property revenue from select tax', 
+                                                               '% County Local revenue from select tax', '% County Total revenue from select tax']],
+                                            on='County FIPS', how='left')
+    func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total County Select Tax Received (k)'})
+    
+    func_parcel_tax = func_parcel_tax.merge(munic_sum_total[['Municipality Name', 'sum', 'Subdiv FIPS', 'Municipality Real Property Taxes and Assessments (k)', 'Municipality Local Revenues (k)', 'Municipality Total Revenues (k)', '% Municipality Property revenue from select tax', '% Municipality Local revenue from select tax', '% Municipality Total revenue from select tax']],
+                                            on='Subdiv FIPS', how='left')
+    func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total Municipal Select Tax Received (k)'})
+    
+    func_parcel_tax = func_parcel_tax.merge(school_sum_total[['School District Name', 'sum', 'School Real Property Taxes and Assessments (k)', 'School Local Revenues (k)', 'School Total Revenues (k)', '% School Property revenue from select tax', '% School Local revenue from select tax', '% School Total revenue from select tax']],
+                                            on='School District Name', how='left')
+    func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total School Select Tax Received (k)'})
 
    ## Graphs
     plt.rcParams["font.family"] = "Times New Roman"
@@ -383,9 +389,6 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_School_sum.png')
     plt.show()
     
-    ## Cleanup
-    del [total_sum, total_mean, total_count, total_row]
-    
     # Renaming sum column in all datasets
     datasets = [county_sum_total, munic_sum_total, school_sum_total, overall_total]
     for dataset in datasets:
@@ -402,6 +405,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
                                               'GEO_ID','state','county'],axis = 1)
     
     # Cleanup
+    del [total_sum, total_mean, total_count, total_row]
     func_parcel_tax = func_parcel_tax.drop('_merge',axis = 1)
     func_parcel_tax['Print Key Code'] = func_parcel_tax['Print Key Code'].astype(str)
     
