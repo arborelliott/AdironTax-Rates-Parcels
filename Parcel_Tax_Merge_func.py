@@ -101,15 +101,16 @@ print(parcel.columns.tolist())
 tax = tax[tax['Roll Year'] == 2021]
 parcel = parcel[parcel['Roll Year'] == 2021]
 
-# Fix St lawrence naming
+
+# Fix naming issues
 tax['County'] = tax['County'].replace('St. Lawrence', 'St Lawrence')
+parcel['Municipality Name'] = parcel['Municipality Name'].replace('Saratoga Springs, Outside', 'Saratoga Springs')
 
 # Dropping not filed towns
 county_budget = county_budget[county_budget['Real Property Taxes and Assessments'] != 'Not Filed']
 town_budget = town_budget[town_budget['Real Property Taxes and Assessments'] != 'Not Filed']
 
 # Formatting name column for join 
-
 county_budget['County'] = county_budget['County'].replace('St. Lawrence', 'St Lawrence')
 
 # Function to remove specified words from a string using regular expressions
@@ -159,7 +160,7 @@ if not unmatched_rows.empty:
 
 
 
-#%% Merging and Calculating tax rates for each parcel
+#%% Calculating tax rates for each parcel
 
 # County
 
@@ -193,29 +194,15 @@ merged_parcel_tax['Parcel Combined Tax Paid'] = merged_parcel_tax['Parcel School
 
 #Adks
 adk_counties = ['Clinton', 'Essex', 'Franklin', 'Fulton', 'Hamilton', 'Herkimer', 'Lewis', 'Oneida', 'St Lawrence', 'Saratoga', 'Warren', 'Washington']
-adk_munic = ['Altona', 'Arietta', 'AuSable', 'Bellmont', 'Benson', 'Black Brook', 
-        'Bleecker', 'Bolton', 'Brighton', 'Broadalbin', 'Caroga', 'Chester', 
-        'Chesterfield', 'Clare', 'Clifton', 'Colton', 'Corinth', 'Croghan', 
-        'Crown', 'Dannemora', 'Day', 'Diana', 'Dresden', 'Duane', 'Edinburg', 
-        'Elizabethtown', 'Ellenburg', 'Ephratah', 'Essex ', 'Fine', 
-        'Forestport', 'Fort Ann', 'Franklin', 'Greenfield', 'Greig', 'Hadley', 
-        'Hague', 'Harrietstown', 'Hope', 'Hopkinton', 'Horicon', 'Indian Lake',
-        'Inlet', 'Jay', 'Johnsburg', 'Johnstown', 'Keene', 'Lake George', 
-        'Lake Luzerne', 'Lake Pleasant', 'Lawrence', 'Lewis', 'Long', 
-        'Lyonsdale', 'Mayfield', 'Minerva', 'Morehouse', 'Moriah', 'Newcomb', 
-        'North', 'North Hudson', 'Northampton', 'Ohio', 'Oppenheim', 
-        'Parishville', 'Peru', 'Piercefield', 'Pitcairn', 'Plattsburgh', 
-        'Providence', 'Putnam', 'Queensbury', 'Remsen', 'Russia', 'Salisbury',
-        'Santa Clara', 'Saranac', 'Schroon', 'St. Armand', 'Stony Creek ', 
-        'Stratford', 'Thurman', 'Ticonderoga', 'Tupper Lake',
-        # Corinth through Tupper Lake are villages. 
-        'Corinth', 'Dannemora', 'Lake George', 'Lake Placid', 'Mayfield', 'Northville', 
-        'Saranac Lake', 'Speculator', 'Tupper Lake',
-        # End village list 
-        'Warrensburg', 'Watson', 'Waverly', 'Webb', 'Wells', 'Westport', 
-        'Willsboro', 'Wilmington']
+adk_munic = pd.read_csv('Input/NYS_ADK_TOWNS.csv')
         
-adk_parcel_tax = merged_parcel_tax[merged_parcel_tax['County'].isin(adk_counties)]
+adk_villages = ['Corinth', 'Dannemora', 'Lake George', 'Lake Placid', 'Mayfield', 'Northville', 
+        'Saranac Lake', 'Speculator', 'Tupper Lake',]
+      
+#antiquated subset based on county
+#adk_parcel_tax = merged_parcel_tax[merged_parcel_tax['County'].isin(adk_counties)]
+adk_parcel_tax = merged_parcel_tax[merged_parcel_tax['SWIS'].isin(adk_munic['SWIS'])]
+
 
 #Catskills
 cat_counties = ['Delaware', 'Greene', 'Sullivan', 'Ulster']
@@ -310,9 +297,9 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
                                                              'Local Revenues','Total Revenues']],
                                               on = 'County', how = 'left')
     ### Converting to (k)
-    county_sum_total['Real Property Taxes and Assessments (k)'] = county_sum_total['Real Property Taxes and Assessments'] /1000
-    county_sum_total['Local Revenues (k)'] = county_sum_total['Local Revenues'] /1000
-    county_sum_total['Total Revenues (k)'] = county_sum_total['Total Revenues'] /1000
+    county_sum_total['County Real Property Taxes and Assessments (k)'] = county_sum_total['Real Property Taxes and Assessments'] /1000
+    county_sum_total['County Local Revenues (k)'] = county_sum_total['Local Revenues'] /1000
+    county_sum_total['County Total Revenues (k)'] = county_sum_total['Total Revenues'] /1000
     county_sum_total = county_sum_total.drop(['Real Property Taxes and Assessments', 
                                               'Local Revenues','Total Revenues'], axis = 1)
     
@@ -327,9 +314,9 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     munic_sum_total = munic_sum_total.drop(['_merge'],axis=1)
     
     ### Converting to (k)
-    munic_sum_total['Real Property Taxes and Assessments (k)'] = munic_sum_total['Real Property Taxes and Assessments'] /1000
-    munic_sum_total['Local Revenues (k)'] = munic_sum_total['Local Revenues'] /1000
-    munic_sum_total['Total Revenues (k)'] = munic_sum_total['Total Revenues'] /1000
+    munic_sum_total['Municipality Real Property Taxes and Assessments (k)'] = munic_sum_total['Real Property Taxes and Assessments'] /1000
+    munic_sum_total['Municipality Local Revenues (k)'] = munic_sum_total['Local Revenues'] /1000
+    munic_sum_total['Municipality Total Revenues (k)'] = munic_sum_total['Total Revenues'] /1000
     munic_sum_total = munic_sum_total.drop(['Real Property Taxes and Assessments',
                                                              'Local Revenues','Total Revenues'], axis = 1)
     
@@ -344,27 +331,27 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     #failed_rows.to_csv('failed_school_rows.csv')
     school_sum_total = school_sum_total.drop(['_merge'],axis=1)
     ## Converting to (K)
-    school_sum_total['Real Property Taxes and Assessments (k)'] = school_sum_total['Real Property Taxes and Assessments'] /1000
-    school_sum_total['Local Revenues (k)'] = school_sum_total['Local Revenues'] /1000
-    school_sum_total['Total Revenues (k)'] = school_sum_total['Total Revenues'] /1000
+    school_sum_total['School Real Property Taxes and Assessments (k)'] = school_sum_total['Real Property Taxes and Assessments'] /1000
+    school_sum_total['School Local Revenues (k)'] = school_sum_total['Local Revenues'] /1000
+    school_sum_total['School Total Revenues (k)'] = school_sum_total['Total Revenues'] /1000
     school_sum_total = school_sum_total.drop(['Real Property Taxes and Assessments',
                                                              'Local Revenues','Total Revenues'], axis = 1)
 
     # Calculating percentage of revenue from select tax
     ## County
-    county_sum_total['% Property revenue from select tax'] = county_sum_total['sum'] / county_sum_total['Real Property Taxes and Assessments (k)']
-    county_sum_total['% Local revenue from select tax'] = county_sum_total['sum'] / county_sum_total['Local Revenues (k)']
-    county_sum_total['% Total revenue from select tax'] = county_sum_total['sum'] / county_sum_total['Total Revenues (k)']
+    county_sum_total['% County Property revenue from select tax'] = county_sum_total['sum'] / county_sum_total['County Real Property Taxes and Assessments (k)']
+    county_sum_total['% County Local revenue from select tax'] = county_sum_total['sum'] / county_sum_total['County Local Revenues (k)']
+    county_sum_total['% County Total revenue from select tax'] = county_sum_total['sum'] / county_sum_total['County Total Revenues (k)']
 
     ## Town
-    munic_sum_total['% Property revenue from select tax'] = munic_sum_total['sum'] / munic_sum_total['Real Property Taxes and Assessments (k)']
-    munic_sum_total['% Local revenue from select tax'] = munic_sum_total['sum'] / munic_sum_total['Local Revenues (k)']
-    munic_sum_total['% Total revenue from select tax'] = munic_sum_total['sum'] / munic_sum_total['Total Revenues (k)']
+    munic_sum_total['% Municipality Property revenue from select tax'] = munic_sum_total['sum'] / munic_sum_total['Municipality Real Property Taxes and Assessments (k)']
+    munic_sum_total['% Municipality Local revenue from select tax'] = munic_sum_total['sum'] / munic_sum_total['Municipality Local Revenues (k)']
+    munic_sum_total['% Municipality Total revenue from select tax'] = munic_sum_total['sum'] / munic_sum_total['Municipality Total Revenues (k)']
 
     ## School
-    school_sum_total['% Property revenue from select tax'] = school_sum_total['sum'] / school_sum_total['Real Property Taxes and Assessments (k)']
-    school_sum_total['% Local revenue from select tax'] = school_sum_total['sum'] / school_sum_total['Local Revenues (k)']
-    school_sum_total['% Total revenue from select tax'] = school_sum_total['sum'] / school_sum_total['Total Revenues (k)'] 
+    school_sum_total['% School Property revenue from select tax'] = school_sum_total['sum'] / school_sum_total['School Real Property Taxes and Assessments (k)']
+    school_sum_total['% School Local revenue from select tax'] = school_sum_total['sum'] / school_sum_total['School Local Revenues (k)']
+    school_sum_total['% School Total revenue from select tax'] = school_sum_total['sum'] / school_sum_total['School Total Revenues (k)'] 
 
 
    ## Graphs
