@@ -32,7 +32,7 @@ centroid = pd.read_pickle('Hedonic Analysis/Output/Centroid_parcels_data.zip')
 # Tax
 ################# Select codes & Properties
 pclass = 931
-prefix = 'adk'
+prefix = 'Adk'
 ################
 
 classdisct = {931:'532a', 980:'Easments', 940:'Reforested_other',932:'532b',990:'Other'}

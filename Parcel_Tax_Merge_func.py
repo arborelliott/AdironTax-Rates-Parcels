@@ -95,7 +95,7 @@ drop = ['Tax Class','Roll Section','Front','Depth','Deed Book','Page','Primary O
         'Mailing Address Suff', 'Mailing Address City','Parcel Address Number', 'Parcel Address Street', 'Parcel Address Suff', 'Bank', 
         'Mailing Address State', 'Mailing Address Zip', 'Mailing Address PO Box']
 parcel = parcel.drop(drop, axis = 1)
-print(parcel.columns.tolist())
+# print(parcel.columns.tolist())
 
 # Subset of only 2021 data
 tax = tax[tax['Roll Year'] == 2021]
@@ -132,7 +132,7 @@ school_budget['School District Name'] = school_budget['School District Name'].re
 
 #%% Merging Data
 
-print(tax.columns.tolist())
+# print(tax.columns.tolist())
 merged_parcel_tax = pd.merge(parcel, tax[['County', 'County Tax Rate Outside Village (per $1000 value)', 'Municipal Tax Rate Outside Village (per $1000 value)',
                                           'School District Tax Rate (per $1000 value)', 'School Code', 'SWIS','MUNI_TYPE','FIPS_CODE', 'State FIPS', 'County FIPS', 'Subdiv FIPS', 
                                           'POP1990', 'POP2000', 'POP2010', 'POP2020', 'CALC_SQ_MI']], 
@@ -148,12 +148,12 @@ merged_parcel_tax = pd.merge(parcel, tax[['County', 'County Tax Rate Outside Vil
 unmatched_rows = merged_parcel_tax[merged_parcel_tax['_merge'] == 'left_only']
 
 # Report unmatched data
-if not unmatched_rows.empty:
-    print("Unmatched data:")
-    print(unmatched_rows)
+# if not unmatched_rows.empty:
+#     print("Unmatched data:")
+#     print(unmatched_rows)
     
 # Export unmatched rows to CSV
-    unmatched_rows.to_csv('Output/unmatched_data.csv', index=False)
+    # unmatched_rows.to_csv('Output/unmatched_data.csv', index=False)
 
 # Cleanup
 #del unmatched_rows
@@ -230,58 +230,67 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
     
-    # County table
-    county_sum = func_parcel_tax.groupby(['County'])['Parcel County Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
+    # County summary table
+    county_sum = func_parcel_tax.groupby(['County'])['Parcel County Tax Paid'].agg(['sum', 'mean', 'count']).reset_index() # create new DF grouped by county, aggregate sum, mean, count
     county_sum['County FIPS'] = func_parcel_tax.groupby('County')['County FIPS'].first().reset_index(drop=True) # inclue county FIPS code
     county_sum['sum'] = county_sum['sum'].round(2)
     
     ## County table (total row)
     total_sum = county_sum['sum'].sum()
     total_mean = county_sum['mean'].mean()
-    total_count = county_sum['count'].sum()
+    total_count = county_sum['count'].sum() #calculate the sum, mean, and count for the columns
     
-    total_row = pd.Series({'sum': total_sum, 'mean': total_mean, 'count': total_count}, name=' County Total')
-    county_sum_total = county_sum.append(total_row)
+    total_row = pd.Series({'Locality':'County','County':'Total','sum': total_sum, 'mean': total_mean, 'count': total_count}, name=' County Total') # create new total row
+    county_sum_total = county_sum.iloc[:] # add new row using values of total_row
+    county_sum_total.loc[' County Total'] = total_row
     
-    overall_total = pd.DataFrame(columns=['sum', 'mean', 'count'])
-    overall_total = overall_total.append(total_row)
+    overall_total = pd.DataFrame(columns=['Locality','sum', 'mean', 'count'])
+    overall_total = overall_total.iloc[:]
+    overall_total.loc[0] = total_row
     
-    # Municipality table 
+    # Municipality table
     munic_sum = func_parcel_tax.groupby(['Municipality Name'])['Parcel Municipal Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
     munic_sum['Subdiv FIPS'] = func_parcel_tax.groupby('Municipality Name')['Subdiv FIPS'].first().reset_index(drop=True)
     munic_sum['SWIS'] = func_parcel_tax.groupby('Municipality Name')['SWIS'].first().reset_index(drop=True).astype(str)
     munic_sum['sum'] = munic_sum['sum'].round(2)
     
-    ## Municipality table (total row)
+    # Municipality table (total row)
     total_sum = munic_sum['sum'].sum()
     total_mean = munic_sum['mean'].mean()
     total_count = munic_sum['count'].sum()
     
-    total_row = pd.Series({'sum': total_sum, 'mean': total_mean, 'count': total_count}, name='Municipality Total')
-    munic_sum_total = munic_sum.append(total_row)
+    total_row = pd.Series({'Locality': 'Municipality','Municipality Name':'Total', 'sum': total_sum, 'mean': total_mean, 'count': total_count}, name='Municipality Total')
+    munic_sum_total = munic_sum.iloc[:]
+    munic_sum_total.loc[len(munic_sum_total)] = total_row
     
-    overall_total = overall_total.append(total_row)
+    overall_total = overall_total.iloc[:]
+    overall_total.loc[len(overall_total)] = total_row
     
     # School table
     school_sum = func_parcel_tax.groupby(['School District Name'])['Parcel School Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
     school_sum['School Code'] = func_parcel_tax.groupby('School District Name')['School Code'].first().reset_index(drop=True).astype(str)
     school_sum['sum'] = school_sum['sum'].round(2)
     
-    ## School table (total row)
+    # School table (total row)
     total_sum = school_sum['sum'].sum()
     total_mean = school_sum['mean'].mean()
     total_count = school_sum['count'].sum()
     
-    total_row = pd.Series({'sum': total_sum, 'mean': total_mean, 'count': total_count}, name='School Total')
-    school_sum_total = school_sum.append(total_row)
-    overall_total = overall_total.append(total_row)
+    total_row = pd.Series({'Locality': 'School','School District Name':'Total','sum': total_sum, 'mean': total_mean, 'count': total_count}, name='School Total')
+    school_sum_total = school_sum.iloc[:]
+    school_sum_total.loc[len(school_sum_total)] = total_row
     
-    ### Overall Table 
+    overall_total = overall_total.iloc[:]
+    overall_total.loc[len(overall_total)] = total_row
+    
+    # Overall Table
     total_sum = overall_total['sum'].sum()
     total_mean = overall_total['mean'].mean()
     total_count = school_sum['count'].sum()
-    total_row = pd.Series({'sum': total_sum, 'mean': total_mean, 'count': total_count}, name='Overall Total')
-    overall_total = overall_total.append(total_row)
+    total_row = pd.Series({'Locality': 'Overall', 'sum': total_sum, 'mean': total_mean, 'count': total_count}, name='Overall Total')
+    overall_total = overall_total.iloc[:]
+    overall_total.loc[len(overall_total)] = total_row
+
                                                                          
     # Joining locality budgets to parcels
     ## County Budget to County Summary table
