@@ -249,6 +249,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     # Municipality table 
     munic_sum = func_parcel_tax.groupby(['Municipality Name'])['Parcel Municipal Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
     munic_sum['Subdiv FIPS'] = func_parcel_tax.groupby('Municipality Name')['Subdiv FIPS'].first().reset_index(drop=True)
+    munic_sum['SWIS'] = func_parcel_tax.groupby('Municipality Name')['SWIS'].first().reset_index(drop=True).astype(str)
     munic_sum['sum'] = munic_sum['sum'].round(2)
     
     ## Municipality table (total row)
@@ -263,6 +264,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     
     # School table
     school_sum = func_parcel_tax.groupby(['School District Name'])['Parcel School Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
+    school_sum['School Code'] = func_parcel_tax.groupby('School District Name')['School Code'].first().reset_index(drop=True).astype(str)
     school_sum['sum'] = school_sum['sum'].round(2)
     
     ## School table (total row)
@@ -356,8 +358,10 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
                                             on='Subdiv FIPS', how='left')
     func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total Municipal Select Tax Received (k)'})
     
-    func_parcel_tax = func_parcel_tax.merge(school_sum_total[['School District Name', 'sum', 'School Real Property Taxes and Assessments (k)', 'School Local Revenues (k)', 'School Total Revenues (k)', '% School Property revenue from select tax', '% School Local revenue from select tax', '% School Total revenue from select tax']],
-                                            on='School District Name', how='left')
+    func_parcel_tax = func_parcel_tax.merge(school_sum_total[['School District Name', 'sum', 'School Real Property Taxes and Assessments (k)', 'School Local Revenues (k)',
+                                                             'School Total Revenues (k)', '% School Property revenue from select tax', '% School Local revenue from select tax',
+                                                             '% School Total revenue from select tax']],
+                                           on='School District Name', how='left')
     func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total School Select Tax Received (k)'})
 
    ## Graphs
@@ -390,10 +394,13 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     plt.show()
     
     # Renaming sum column in all datasets
-    datasets = [county_sum_total, munic_sum_total, school_sum_total, overall_total]
-    for dataset in datasets:
-        dataset.rename(columns={'sum': 'Total Select Tax Received (k)'}, inplace=True)
-    del [dataset, datasets]
+    # datasets = [county_sum_total, munic_sum_total, school_sum_total, overall_total]
+    # for dataset in datasets:
+    #     dataset.rename(columns={'sum': 'Total Select Tax Received (k)'}, inplace=True)
+    # del [dataset, datasets]
+    county_sum_total = county_sum_total.rename(columns={'sum': 'Total County Select Tax Received (k)'})
+    munic_sum_total = munic_sum_total.rename(columns={'sum': 'Total Municipal Select Tax Received (k)'})
+    school_sum_total = school_sum_total.rename(columns={'sum': 'Total School Select Tax Received (k)'})
     
     # Merging With Census Data
     county_sum_total = county_sum_total.merge(county_census, left_on='County FIPS', right_on='county',how = 'left')
@@ -403,6 +410,10 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     munic_sum_total = munic_sum_total.merge(subdiv_census, left_on='Subdiv FIPS', right_on='county subdivision',how = 'left')
     munic_sum_total = munic_sum_total.drop(['NAME','COUNTY','Unnamed: 0',
                                               'GEO_ID','state','county'],axis = 1)
+    
+    # Making sure codes are strings
+    munic_sum_total['SWIS'] = munic_sum_total['SWIS'].astype(str)
+    school_sum_total['School Code'] = school_sum_total['School Code'].astype(str)
     
     # Cleanup
     del [total_sum, total_mean, total_count, total_row]
