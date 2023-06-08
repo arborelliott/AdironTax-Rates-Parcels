@@ -10,45 +10,42 @@ import pandas as pd
 #%% Importing csv files. Dwnloaded all real estate transacitons from a 
 #   ten year period from counties that contain the Adirondack Park. 
 
-clinton_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/0914_19.CSV', index_col=False, dtype=(str))
-clinton_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/0920_CUR.CSV', index_col=False, dtype=(str))
-
-essex_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/1514_19.CSV', index_col=False, dtype=(str))
-essex_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/1520_CUR.CSV', index_col=False, dtype=(str))
-
-franklin_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/1614_19.CSV', index_col=False, dtype=(str))
-franklin_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/1620_CUR.CSV', index_col=False, dtype=(str))
-
-fulton_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/1714_19.CSV', index_col=False, dtype=(str))
-fulton_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/1720_CUR.CSV', index_col=False, dtype=(str))
-
-hamilton_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/2014_19.CSV', index_col=False, dtype=(str))
-hamilton_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/2020_CUR.CSV', index_col=False, dtype=(str))
-
-herkimer_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/2114_19.CSV', index_col=False, dtype=(str))
-herkimer_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/2120_CUR.CSV', index_col=False, dtype=(str))
-
-#Manually deleted row 8674 due to typo in print key. 
-lewis_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/2314_19.CSV', index_col=False, dtype=(str))
-lewis_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/2320_CUR.CSV', index_col=False, dtype=(str))
-
-oneida_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/3014_19.CSV', index_col=False, dtype=(str))
-oneida_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/3020_CUR.CSV', index_col=False, dtype=(str))
-
-st_lawrence_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/4014_19.CSV', index_col=False, dtype=(str))
-st_lawrence_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/4020_CUR.CSV', index_col=False, dtype=(str))
-
-saratoga_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/4114_19.CSV', index_col=False, dtype=(str))
-saratoga_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/4120_CUR.CSV', index_col=False, dtype=(str))
+#Manually deleted row 8674 in lewis_14_19.csv due to typo in print key. 
 
 # There is a typo in line 6383 of warren_14_19 source document. street_nbr cell 
 # was empty from source material. . This change was updated manually in the csv file. 
-warren_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/5214_19.CSV', index_col=False, dtype=(str))
-warren_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/5220_CUR.CSV', index_col=False, dtype=(str))
 
-washington_14_19 = pd.read_csv('Input/Real Estate Transactions/ADK/5314_19.CSV', index_col=False, dtype=(str))
-washington_20_cur = pd.read_csv('Input/Real Estate Transactions/ADK/5320_CUR.CSV', index_col=False, dtype=(str))
+# There is a typo in line 6383 of warren_14_19 source document. street_nbr cell 
+# was empty from source material. . This change was updated manually in the csv file.
 
+#Deleted lines 6802, 7776 manually due to data quality issue.
+
+
+adk_county_list = {'clinton' :'09', 'essex':'15', 'frankin':'16', 'fulton':'17', 
+            'hamilton':'20', 'herkimer':'21', 'lewis': '23', 'oneida':'30', 
+            'st_lawrence':'40', 'saratoga':'41', 'warren':'52', 
+            'washington':'53' }
+
+transactions=[]
+
+for name, code in adk_county_list.items():
+    current = pd.read_csv(f"Input/Real Estate Transactions/ADK/{code}14_19.csv",index_col=False, dtype=(str))
+    transactions.append(current)
+
+adk_county_data_1419 = pd.concat(transactions)
+
+#%% 
+transactions=[]
+
+for name, code in adk_county_list.items():
+    current = pd.read_csv(f"Input/Real Estate Transactions/ADK/{code}20_CUR.csv",index_col=False, dtype=(str))
+    transactions.append(current)
+
+adk_county_data_20cur=pd.concat(transactions)
+
+#Creates a standard date format for sale date transactions. 
+adk_county_data_1419['std_date'] = pd.to_datetime(adk_county_data_1419['sale_date'])
+adk_county_data_20cur['std_date']= pd.to_datetime(adk_county_data_20cur['sale_date'])
 
 #%% Creating a dictionary of municipalities within the park. Source:
     # https://apa.ny.gov/local_government/LGS/ADKTownsVillagesWebsites.pdf
@@ -76,74 +73,38 @@ adk_muni = ['Altona', 'Arietta', 'AuSable', 'Bellmont', 'Benson', 'Black Brook',
         'Willsboro', 'Wilmington'
         ]
 
-# Creating county list for concatination 
-adk_counties = [clinton_14_19, clinton_20_cur, essex_14_19, essex_20_cur,
-                        franklin_14_19, franklin_20_cur, hamilton_14_19, 
-                        hamilton_20_cur, herkimer_14_19, herkimer_20_cur, 
-                        lewis_14_19, lewis_20_cur, oneida_14_19, oneida_20_cur,
-                        st_lawrence_14_19, st_lawrence_20_cur, saratoga_14_19,
-                        saratoga_20_cur, warren_14_19, warren_20_cur, 
-                        washington_14_19, washington_20_cur]
-
+adk_counties = [adk_county_data_1419, adk_county_data_20cur]
 #%% Appending datasets together
 
-merged_adk_counties = pd.concat(adk_counties, ignore_index=True)
+merged_adk_counties = pd.concat([adk_county_data_1419, adk_county_data_20cur])
+#Fixes leading 0 
+merged_adk_counties['swis_code'] = merged_adk_counties['swis_code'].str.zfill(6)
+
 merged_adk_counties[['sale_price', 'total_av']] = merged_adk_counties[['sale_price', 'total_av']].astype(int)
 merged_adk_counties['print_key'] = merged_adk_counties['print_key'].astype(str)
+merged_adk_counties['sale_date'] = pd.to_datetime(merged_adk_counties['sale_date'])
+merged_adk_counties['merged_swis_print'] = merged_adk_counties['print_key']+merged_adk_counties['swis_code']
 
+#%% 
+trim_dups = merged_adk_counties.dropna(subset=['merged_swis_print'])
+is_dup = merged_adk_counties.duplicated(subset=['merged_swis_print'])
+duplicate_rows = merged_adk_counties[is_dup]
+merged_adk_counties = trim_dups[~is_dup]  
+#%% 
 #Dropping non-arms length sales baed on arms_length_flag column  
-
-merged_adk_counties = merged_adk_counties.drop(merged_adk_counties[(merged_adk_counties['arms_length_flag'] == 'N')].index)
+merged_adk_counties = merged_adk_counties[merged_adk_counties['arms_length_flag']=='Y']
 
 # creating two datasets for municipalities that contain the park 
 # and non-park municipalities
  
 adk_park_munis = merged_adk_counties[merged_adk_counties.muni_name.isin(adk_muni)]
 non_adk_park_munis = merged_adk_counties[~merged_adk_counties.muni_name.isin(adk_muni)]
-#%%  filter out the most recent transaction (by year of transaction) 
-# for each tax parcel so that we only have one entry for each tax parcel 
+#%% 
+adk_park_munis = adk_park_munis.sort_values(['std_date']).drop_duplicates(['merged_swis_print'],keep = 'last')
+non_adk_park_munis = non_adk_park_munis.sort_values(['std_date']).drop_duplicates(['merged_swis_print'],keep='last')
 
-adk_park_munis = adk_park_munis.sort_values(['swis_code', 'print_key', 'sale_date'], ascending=[False,False,False])
-adk_rows_drop =[]
-
-for index, row in adk_park_munis.iterrows():
-    swis_value = row['swis_code']
-    print_value = row['print_key']
-    sale_date = row['sale_date']
-    
-    matches = adk_park_munis.loc[(adk_park_munis['swis_code'] == swis_value) & 
-                                 (adk_park_munis['print_key'] == print_value) &
-                                 (adk_park_munis['sale_date'] == sale_date)].index.tolist()
-    matches.remove(index)
-    
-    adk_rows_drop.extend(matches)
-    
-adk_park_munis = adk_park_munis.drop(adk_rows_drop)
-
-adk_park_munis = adk_park_munis.reset_index(drop=True)
-
-#%% Same as above for counties outside of the park
-
-non_adk_park_munis = non_adk_park_munis.sort_values(['swis_code', 'print_key', 'sale_date'], ascending=[False,False,False])
-adk_rows_drop =[]
-
-for index, row in non_adk_park_munis.iterrows():
-    swis_value = row['swis_code']
-    print_value = row['print_key']
-    sale_date = row['sale_date']
-    
-    matches = non_adk_park_munis.loc[(non_adk_park_munis['swis_code'] == swis_value) & 
-                                 (non_adk_park_munis['print_key'] == print_value) &
-                                 (non_adk_park_munis['sale_date'] == sale_date)].index.tolist()
-    matches.remove(index)
-    
-    adk_rows_drop.extend(matches)
-    
-non_adk_park_munis = non_adk_park_munis.drop(adk_rows_drop)
-
-non_adk_park_munis = non_adk_park_munis.reset_index(drop=True)
-
-
+adk_park_dups = adk_park_munis.duplicated(subset=['merged_swis_print'], keep=False)
+non_adk_park_dups = adk_park_munis.duplicated(subset=['merged_swis_print'], keep=False)
 #%% 
 #saves to csv file.
 merged_adk_counties.to_csv('Output/Real Estate/merged_adk_counties.csv')
@@ -152,21 +113,25 @@ non_adk_park_munis.to_csv('Output/Real Estate/non_adk_park_munis.csv')
 
 
 #%% Catskill Real Estate Data
+cat_county_list = {'delaware':'12', 'greene':'19', 'sullivan':'48', 'ulster':'51'}
 
-delaware_14_19 = pd.read_csv('Input/Real Estate Transactions/CAT/1214_19.CSV', index_col=False, dtype=(str))
-delaware_20_cur = pd.read_csv('Input/Real Estate Transactions/CAT/1220_CUR.CSV', index_col=False, dtype=(str))
+#%% 
+transactions = []
 
-greene_14_19 = pd.read_csv('Input/Real Estate Transactions/CAT/1914_19.CSV', index_col=False, dtype=(str))
-greene_20_cur = pd.read_csv('Input/Real Estate Transactions/CAT/1920_CUR.CSV', index_col=False, dtype=(str))
+for name, code in cat_county_list.items():
+    current = pd.read_csv(f"Input/Real Estate Transactions/CAT/{code}14_19.csv",index_col=False, dtype=(str))
+    transactions.append(current)
 
-sullivan_14_19 = pd.read_csv('Input/Real Estate Transactions/CAT/4814_19.CSV', index_col=False, dtype=(str))
-sullivan_20_cur = pd.read_csv('Input/Real Estate Transactions/CAT/4820_CUR.CSV', index_col=False, dtype=(str))
+cat_county_data_1419 = pd.concat(transactions)
 
-#Manually corrected two typographic errors in lines 12710 of 5114_19 and 
-# line 4205 of 5120. 
-ulster_14_19 = pd.read_csv('Input/Real Estate Transactions/CAT/5114_19.CSV', index_col=False, dtype=(str))
-ulster_20_cur = pd.read_csv('Input/Real Estate Transactions/CAT/5120_CUR.CSV', index_col=False, dtype=(str))
+#%% 
+transactions=[]
 
+for name, code in cat_county_list.items():
+    current = pd.read_csv(f"Input/Real Estate Transactions/CAT/{code}20_CUR.csv",index_col=False, dtype=(str))
+    transactions.append(current)
+
+cat_county_data_20cur=pd.concat(transactions)
  
 #%% Catskill  municipality and county dictionaries 
 
@@ -180,69 +145,37 @@ cat_muni = [
             'Athens'
             ]
 
-cat_counties = [delaware_14_19, delaware_20_cur, greene_14_19, greene_20_cur, 
-                sullivan_14_19, sullivan_20_cur, ulster_14_19, ulster_20_cur
-                ]
+cat_counties = (cat_county_data_1419, cat_county_data_20cur)
 
 #%% 
 merged_cat_counties = pd.concat(cat_counties, ignore_index=True)
+merged_cat_counties['sale_date'] = pd.to_datetime(merged_cat_counties['sale_date'])
+
+merged_cat_counties['sale_price'] = pd.to_numeric(merged_cat_counties['sale_price'],errors='coerce') 
+merged_cat_counties['total_av'] = pd.to_numeric(merged_cat_counties['total_av'],errors='coerce')
+merged_cat_counties = merged_cat_counties.dropna(subset=['sale_price', 'total_av'])
 
 merged_cat_counties[['sale_price', 'total_av']] = merged_cat_counties[['sale_price', 'total_av']].astype(int)
-merged_cat_counties['print_key'] = merged_cat_counties['print_key'].astype(str)
-
-
 
 #%% 
+
+
+merged_cat_counties['print_key'] = merged_cat_counties['print_key'].astype(str)
+merged_cat_counties['sale_date'] = pd.to_datetime(merged_cat_counties['sale_date'])
+merged_cat_counties['merged_swis_print'] = merged_cat_counties['print_key']+merged_cat_counties['swis_code']
+#%% 
 #Dropping arms length sales 
-merged_cat_counties = merged_cat_counties.drop(merged_cat_counties[(merged_cat_counties['arms_length_flag'] == 'N')].index)
+merged_cat_counties = merged_cat_counties[merged_cat_counties['arms_length_flag']=='Y']
 
 cat_park_munis = merged_cat_counties[merged_cat_counties.muni_name.isin(cat_muni)]
 non_cat_park_munis = merged_cat_counties[~merged_cat_counties.muni_name.isin(cat_muni)]
 
-#%% filter out the most recent transaction (by year of transaction) 
-# for each tax parcel so that we only have one entry for each tax parcel 
-
-cat_park_munis = cat_park_munis.sort_values(['swis_code', 'print_key', 'sale_date'], ascending=[False,False,False])
-cat_rows_drop =[]
-
-for index, row in cat_park_munis.iterrows():
-    swis_value = row['swis_code']
-    print_value = row['print_key']
-    sale_date = row['sale_date']
-    
-    matches = cat_park_munis.loc[(cat_park_munis['swis_code'] == swis_value) & 
-                                 (cat_park_munis['print_key'] == print_value) &
-                                 (cat_park_munis['sale_date'] == sale_date)].index.tolist()
-    matches.remove(index)
-    
-    cat_rows_drop.extend(matches)
-    
-cat_park_munis = cat_park_munis.drop(adk_rows_drop)
-
-cat_park_munis = cat_park_munis.reset_index(drop=True)
-
-
 #%% 
-non_cat_park_munis = non_cat_park_munis.sort_values(['swis_code', 'print_key', 'sale_date'], ascending=[False,False,False])
-cat_rows_drop =[]
+cat_park_munis = cat_park_munis.sort_values(['sale_date']).drop_duplicates(['merged_swis_print'],keep = 'last')
+non_cat_park_munis = non_cat_park_munis.sort_values(['sale_date']).drop_duplicates(['merged_swis_print'],keep='last')
 
-for index, row in non_cat_park_munis.iterrows():
-    swis_value = row['swis_code']
-    print_value = row['print_key']
-    sale_date = row['sale_date']
-    
-    matches = non_cat_park_munis.loc[(non_cat_park_munis['swis_code'] == swis_value) & 
-                                 (non_cat_park_munis['print_key'] == print_value) &
-                                 (non_cat_park_munis['sale_date'] == sale_date)].index.tolist()
-    matches.remove(index)
-    
-    cat_rows_drop.extend(matches)
-    
-non_cat_park_munis = non_cat_park_munis.drop(adk_rows_drop)
-
-non_cat_park_munis = non_cat_park_munis.reset_index(drop=True)
-
-
+cat_park_dups = cat_park_munis.duplicated(subset=['merged_swis_print'], keep=False)
+non_cat_park_dups = cat_park_munis.duplicated(subset=['merged_swis_print'], keep=False)
 
 #%% 
 #save to csv file
