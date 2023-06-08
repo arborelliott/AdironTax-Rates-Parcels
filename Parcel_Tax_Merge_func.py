@@ -347,6 +347,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     school_sum_total['% School Total revenue from select tax'] = school_sum_total['sum'] / school_sum_total['School Total Revenues (k)'] 
 
     # Locality totals joined to main parcels list
+    # County
     func_parcel_tax = func_parcel_tax.merge(county_sum_total[['County', 'sum', 'County FIPS',
                                                                'County Real Property Taxes and Assessments (k)', 'County Local Revenues (k)', 
                                                                'County Total Revenues (k)', '% County Property revenue from select tax', 
@@ -354,50 +355,91 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
                                             on='County FIPS', how='left')
     func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total County Select Tax Received (k)'})
     
-    func_parcel_tax = func_parcel_tax.merge(munic_sum_total[['Municipality Name', 'sum', 'Subdiv FIPS', 'Municipality Real Property Taxes and Assessments (k)', 'Municipality Local Revenues (k)', 'Municipality Total Revenues (k)', '% Municipality Property revenue from select tax', '% Municipality Local revenue from select tax', '% Municipality Total revenue from select tax']],
+    # Munic
+    func_parcel_tax = func_parcel_tax.merge(munic_sum_total[['Municipality Name', 'sum', 'Subdiv FIPS', 'Municipality Real Property Taxes and Assessments (k)', 
+                                                             'Municipality Local Revenues (k)', 'Municipality Total Revenues (k)', '% Municipality Property revenue from select tax', 
+                                                             '% Municipality Local revenue from select tax', '% Municipality Total revenue from select tax']],
                                             on='Subdiv FIPS', how='left')
     func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total Municipal Select Tax Received (k)'})
     
+    # School
     func_parcel_tax = func_parcel_tax.merge(school_sum_total[['School District Name', 'sum', 'School Real Property Taxes and Assessments (k)', 'School Local Revenues (k)',
                                                              'School Total Revenues (k)', '% School Property revenue from select tax', '% School Local revenue from select tax',
                                                              '% School Total revenue from select tax']],
                                            on='School District Name', how='left')
     func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total School Select Tax Received (k)'})
 
-   ## Graphs
+    # Graphs
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["figure.figsize"] = [7.00, 7.00]
     plt.rcParams["figure.autolayout"] = True
-    
-    plt.barh(county_sum['County'], county_sum['sum'])
-    plt.xlabel('Sum of County Tax Paid')
+       
+    # Percentages
+    # County Local Revenue from {taxcode} Tax by County
+    county_names = county_sum_total['County'].astype(str)
+    plt.barh(county_names, county_sum_total['% County Local revenue from select tax'], color='orange')
+    plt.xlabel(f'% of County Local Revenue from {taxcode} Tax')
     plt.ylabel('County')
-    plt.title(f'{prefix} Sum of County Tax Paid on {taxcode} by County (k)')
+    plt.title(f'Percentage of {prefix} County Local Revenue from {taxcode} Tax by County')
+    plt.yticks(rotation=0)
+    plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_county_percent.png')
+    plt.show()
+    del county_names
+    
+    # Municipality Local Revenue from {taxcode} Tax by Municipality
+    munic_names = munic_sum_total['Municipality Name'].astype(str)
+    plt.barh(munic_names, munic_sum_total['% Municipality Local revenue from select tax'], color='orange')
+    plt.xlabel(f'% of Municipality Local Revenue from {taxcode} Tax')
+    plt.ylabel('Municipality')
+    plt.title(f'Percentage of {prefix} Municipality Local Revenue from {taxcode} Tax by Municipality')
+    plt.yticks(rotation=0, fontsize=5)
+    plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_Municipality_percent.png')
+    plt.show()
+    del munic_names
+    
+    # School Local Revenue from {taxcode} Tax by School
+    school_names = school_sum_total['School District Name'].astype(str)
+    plt.barh(school_names, school_sum_total['% School Local revenue from select tax'], color='orange')
+    plt.xlabel(f'% of School Local Revenue from {taxcode} Tax')
+    plt.ylabel('School')
+    plt.title(f'Percentage of {prefix} School Local Revenue from {taxcode} Tax by School')
+    plt.yticks(rotation=0, fontsize=5)
+    plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_school_sum_total.png')
+    plt.show()
+    del school_names
+
+
+    # Totals
+    # Sum of County Tax Paid on {taxcode} by County
+    plt.barh(county_sum['County'], county_sum['sum'], color = 'blue')
+    plt.xlabel('Sum of County Tax Paid (in k)')
+    plt.ylabel('County')
+    plt.title(f'{prefix} Sum of County Tax Paid on {taxcode} by County')
     plt.yticks(rotation=0)
     plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_county_sum.png')
     plt.show()
     
-    plt.barh(munic_sum['Municipality Name'], munic_sum['sum'])
+    # Sum of Municipality Tax Paid on {taxcode} by Municipality
+    plt.barh(munic_sum['Municipality Name'], munic_sum['sum'], color = 'blue')
+    plt.xlabel('Sum of Municipality Tax Paid (in k)')
     plt.ylabel('Municipality')
-    plt.xlabel('Sum of Municipality Tax Paid')
-    plt.title(f'{prefix} Sum of Municipality Tax Paid on {taxcode} by Municipality (k)')
-    plt.yticks(rotation=0, fontsize = 5)
+    plt.title(f'{prefix} Sum of Municipality Tax Paid on {taxcode} by Municipality')
+    plt.yticks(rotation=0, fontsize=5)
     plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_Municipality_sum.png')
     plt.show()
     
-    plt.barh(school_sum['School District Name'], school_sum['sum'])
+    # Sum of School Tax Paid on {taxcode} by School
+    plt.barh(school_sum['School District Name'], school_sum['sum'], color = 'blue')
+    plt.xlabel('Sum of School Tax Paid (in k)')
     plt.ylabel('School')
-    plt.xlabel('Sum of School Tax Paid')
-    plt.title(f'{prefix} Sum of School Tax Paid on {taxcode} by School (k)')
-    plt.yticks(rotation=0, fontsize = 5)
+    plt.title(f'{prefix} Sum of School Tax Paid on {taxcode} by School')
+    plt.yticks(rotation=0, fontsize=5)
     plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_School_sum.png')
     plt.show()
+
+
     
     # Renaming sum column in all datasets
-    # datasets = [county_sum_total, munic_sum_total, school_sum_total, overall_total]
-    # for dataset in datasets:
-    #     dataset.rename(columns={'sum': 'Total Select Tax Received (k)'}, inplace=True)
-    # del [dataset, datasets]
     county_sum_total = county_sum_total.rename(columns={'sum': 'Total County Select Tax Received (k)'})
     munic_sum_total = munic_sum_total.rename(columns={'sum': 'Total Municipal Select Tax Received (k)'})
     school_sum_total = school_sum_total.rename(columns={'sum': 'Total School Select Tax Received (k)'})
@@ -444,8 +486,8 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
             class 990 = Other taxable state land assessments
 '''
 
-export_tax_data(cat_parcel_tax, prefix='cat', pclass =931)
-export_tax_data(adk_parcel_tax, prefix='adk', pclass =931)
+export_tax_data(cat_parcel_tax, prefix='Cat', pclass =931)
+export_tax_data(adk_parcel_tax, prefix='Adk', pclass =931)
 # export_tax_data(all_parcel_tax, prefix='all', pclass =931)
 
 ## adk/cat region, all parcels, all tax codes. 
