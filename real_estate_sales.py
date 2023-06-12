@@ -32,7 +32,6 @@ merged_hpi = pd.concat([hpi_adk, hpi_cat])
 
 merged_hpi = merged_hpi.drop(columns=['State', 'FIPS code', 'Annual Change (%)', 'HPI with 1990 base', 'HPI with 2000 base'])
 
-
 merged_hpi['HPI'] = merged_hpi['HPI'].astype(float)
 merged_hpi = merged_hpi.rename(columns={'County':'county_name', 'Year':'year', 'HPI':'hpi'})
 merged_hpi = merged_hpi.set_index(['county_name', 'year'])
@@ -95,7 +94,7 @@ adk_county_data_1419['Year'] = adk_county_data_1419['std_date'].dt.year
 adk_county_data_20cur['Year'] = adk_county_data_20cur['std_date'].dt.year
 
 
-#%% Dropping non-relevavnt columns
+#%% Dropping non-relevant columns
 
 drop= ['vlg_print_key', 'vlg_total_av', 'seller_last_name', 'seller_first_name',
        'buyer_last_name', 'buyer_first_name', 'street_nbr', 'street_name', 
@@ -233,9 +232,26 @@ cat_counties = (cat_county_data_1419, cat_county_data_20cur)
 
 #%% 
 
+#######################################
+# JE CODE ATTEMPT
 
-# Columns not merging correct.y hpi, adjusted_amt are listed as nan. 
+merged_cat_counties = pd.concat([cat_county_data_1419,cat_county_data_20cur])
 
+merged_cat_counties['county_name_l'] = merged_cat_counties['county_name'].str.lower()
+# merged_cat_counties = pd.merge(merged_cat_counties,hpi_2021_mult,
+#                     how='left',
+#                     left_on=['county_name_l'],
+#                     right_on = ['county_name'],
+#                     indicator = True)
+# print("Number of rows left-only for HPI mult merge:", merged_cat_counties['_merge'].value_counts()['left_only'])
+# merged_cat_counties = merged_cat_counties.drop('_merge',axis=1)
+
+# This code works to bring in HPI, However it makes a new iteration of each row for each year. Unsure if only need one year?
+
+# merged_cat_counties.set_index('county_name_l')
+
+#######################################
+# Columns not merging correctly hpi, adjusted_amt are listed as nan. 
 merged_cat_counties = pd.concat([cat_county_data_1419,cat_county_data_20cur, hpi_2021_mult])
            
 merged_cat_counties['hpi'] = merged_cat_counties['hpi'].astype(float)
@@ -253,6 +269,7 @@ merged_cat_counties = merged_cat_counties.dropna(subset=['sale_price', 'total_av
 
 merged_cat_counties[['sale_price', 'total_av']] = merged_cat_counties[['sale_price', 'total_av']].astype(int)
 
+############################################
 #%% 
 
 

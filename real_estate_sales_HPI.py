@@ -39,7 +39,7 @@ hpi_2021_mult=merged_hpi/hpi_2021
 
 #%% 
 
-
+############# Brought this code into Hedonic_tax_centorid_sales_merge Script for merging
 
 
 
