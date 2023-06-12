@@ -3,6 +3,10 @@
 Created on Tue May 30 10:10:35 2023
 
 @author: chris
+
+
+NOTES:
+        
 """
 
 import pandas as pd
@@ -237,24 +241,40 @@ cat_counties = (cat_county_data_1419, cat_county_data_20cur)
 
 merged_cat_counties = pd.concat([cat_county_data_1419,cat_county_data_20cur])
 
-merged_cat_counties['county_name_l'] = merged_cat_counties['county_name'].str.lower()
-# merged_cat_counties = pd.merge(merged_cat_counties,hpi_2021_mult,
-#                     how='left',
-#                     left_on=['county_name_l'],
-#                     right_on = ['county_name'],
-#                     indicator = True)
-# print("Number of rows left-only for HPI mult merge:", merged_cat_counties['_merge'].value_counts()['left_only'])
-# merged_cat_counties = merged_cat_counties.drop('_merge',axis=1)
+# Formatting columns for join
+merged_cat_counties['county_name'] = merged_cat_counties['county_name'].str.lower()
 
-# This code works to bring in HPI, However it makes a new iteration of each row for each year. Unsure if only need one year?
+merged_cat_counties['county_name'] = merged_cat_counties['county_name'].astype(str)
+merged_cat_counties['year'] = merged_cat_counties['year'].astype(str)
+merged_cat_counties['year'] = merged_cat_counties['year'].where(~merged_cat_counties['year'].str.endswith('.0'), merged_cat_counties['year'].str[:-2])
 
-# merged_cat_counties.set_index('county_name_l')
+# Setting Index
+merged_cat_counties.set_index(['county_name','year'], inplace=True)
 
+# Dropping 2023 and invalid Sales
+merged_cat_counties = merged_cat_counties.drop(index='2023', level='year')
+merged_cat_counties = merged_cat_counties.drop(index='nan', level='year')
+
+# Merge from index
+merged_cat_counties = pd.merge(merged_cat_counties,hpi_2021_mult,
+                    how='left',
+                    left_index = True,
+                    right_index = True,
+                    indicator = True)
+
+print("Number of rows left-only for HPI mult merge:", merged_cat_counties['_merge'].value_counts()['left_only'])
+
+
+# Merge DF for checking
+# mergecat_left_only = merged_cat_counties[merged_cat_counties['_merge'] == 'left_only']
+# del mergecat_left_only
+
+#%%
 #######################################
 # Columns not merging correctly hpi, adjusted_amt are listed as nan. 
-merged_cat_counties = pd.concat([cat_county_data_1419,cat_county_data_20cur, hpi_2021_mult])
+# merged_cat_counties = pd.concat([cat_county_data_1419,cat_county_data_20cur, hpi_2021_mult])
            
-merged_cat_counties['hpi'] = merged_cat_counties['hpi'].astype(float)
+# merged_cat_counties['hpi'] = merged_cat_counties['hpi'].astype(float)
 
 merged_cat_counties['adjusted_amt'] = merged_cat_counties['sale_price']* merged_cat_counties['hpi']
 
@@ -269,15 +289,14 @@ merged_cat_counties = merged_cat_counties.dropna(subset=['sale_price', 'total_av
 
 merged_cat_counties[['sale_price', 'total_av']] = merged_cat_counties[['sale_price', 'total_av']].astype(int)
 
-############################################
-#%% 
-
+#%%  Formating Merged_cat_counties columns
 
 merged_cat_counties['print_key'] = merged_cat_counties['print_key'].astype(str)
+merged_cat_counties['swis_code'] = merged_cat_counties['swis_code'].astype(str)
 merged_cat_counties['sale_date'] = pd.to_datetime(merged_cat_counties['sale_date'])
 merged_cat_counties['merged_swis_print'] = merged_cat_counties['print_key']+merged_cat_counties['swis_code']
-#%% 
-#Dropping arms length sales 
+#%% Dropping arms length sales
+
 merged_cat_counties = merged_cat_counties[merged_cat_counties['arms_length_flag']=='Y']
 
 cat_park_munis = merged_cat_counties[merged_cat_counties.muni_name.isin(cat_muni)]
@@ -289,9 +308,6 @@ non_cat_park_munis = non_cat_park_munis.sort_values(['sale_date']).drop_duplicat
 
 cat_park_dups = cat_park_munis.duplicated(subset=['merged_swis_print'], keep=False)
 non_cat_park_dups = cat_park_munis.duplicated(subset=['merged_swis_print'], keep=False)
-
-#%% 
-
 
 #%% Dropping real estate sale prices less than 10k. 
 
