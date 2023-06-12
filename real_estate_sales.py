@@ -320,9 +320,6 @@ non_adk_park_munis_10k = merged_adk_counties_10k[~merged_adk_counties_10k.muni_n
 cat_park_munis_10k = merged_cat_counties_10k[merged_cat_counties_10k.muni_name.isin(cat_muni)]
 non_cat_park_munis_10k = merged_cat_counties_10k[~merged_cat_counties_10k.muni_name.isin(cat_muni)]
 
-
-
-
 #%% Saving to csvs
 merged_adk_counties_10k.to_csv('Output/Real Estate/merged_adk_counties_10k.csv')
 adk_park_munis_10k.to_csv('Output/Real Estate/adk_park_munis_10k.csv')
