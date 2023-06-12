@@ -1,11 +1,11 @@
-,Municipality Name,sum,mean,count,Subdiv FIPS,SWIS,Real Property Taxes and Assessments,Local Revenues,Total Revenues,_merge
-1,Ausable,0.39,0.1971255,2,03221,92200,,,,left_only
-14,Clare,0.22,0.03670073000000001,6,15792,402400,,,,left_only
-19,Crown Point,43.04,1.3884287096774193,31,19246,152200,,,,left_only
-24,Edinburg,0.03,0.034164,1,23591,413000,,,,left_only
-43,Inlet,377.24,2.6016804616551723,145,37495,202800,,,,left_only
-55,Morehouse,326.68,0.9176503174157302,356,48340,203400,,,,left_only
-66,Pitcairn,4.6,0.2555928888888889,18,58266,407200,,,,left_only
-79,Thurman,115.66,0.8381420289855073,138,73814,523800,,,,left_only
-84,Waverly,13.92,0.9945849214285712,14,78795,165400,,,,left_only
-90,Total,10580.129999999997,1.4816651892811223,9466,,,,,,left_only
+,Municipality Name,sum,mean,count,County,Subdiv FIPS,SWIS,Real Property Taxes and Assessments,Local Revenues,Total Revenues,_merge
+1,Ausable,0.39,0.1971255,2,Clinton,03221,92200,,,,left_only
+12,Clare,0.22,0.03670073000000001,6,St Lawrence,15792,402400,,,,left_only
+17,Crown Point,43.04,1.3884287096774193,31,Essex,19246,152200,,,,left_only
+22,Edinburg,0.03,0.034164,1,Saratoga,23591,413000,,,,left_only
+40,Inlet,377.24,2.6016804616551723,145,Hamilton,37495,202800,,,,left_only
+52,Morehouse,326.68,0.9176503174157302,356,Hamilton,48340,203400,,,,left_only
+63,Pitcairn,4.6,0.2555928888888889,18,St Lawrence,58266,407200,,,,left_only
+76,Thurman,115.66,0.8381420289855073,138,Warren,73814,523800,,,,left_only
+81,Waverly,13.92,0.9945849214285712,14,Franklin,78795,165400,,,,left_only
+87,Total,10580.129999999997,1.4816651892811223,9466,,,,,,,left_only

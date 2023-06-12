@@ -85,17 +85,17 @@ sales['county_name'] = sales['county_name'].astype(str)
 
 
 
-#%% Sales and Centroid, Left merge
-merge_sc = pd.merge(sales,centroid,
+#%% Left merge of Sales and Centroid
+merge_sc = pd.merge(centroid,sales,
                     how = 'left',
-                    left_on =['swis_code','print_key'],
-                    right_on = ['SWIS','PRINT_KEY'],
+                    right_on =['swis_code','print_key'],
+                    left_on = ['SWIS','PRINT_KEY'],
                     indicator = True)
 
-print("Number of rows left-only for SC merge:", merge_sc['_merge'].value_counts()['left_only'])
+print("Number of rows both for SC merge:", merge_sc['_merge'].value_counts()['both'])
 merge_sc = merge_sc.drop('_merge',axis=1)
 
-#%% Joining summary data to sales parcels
+#%% Merge of Sales/Centroid and tax summary data
 ## County
 
 merge_sct = pd.merge(merge_sc,
@@ -107,7 +107,7 @@ merge_sct = pd.merge(merge_sc,
                     left_on=['county_name'],
                     right_on = ['County'],
                     indicator = True)
-print("Number of rows left-only for SC County merge:", merge_sct['_merge'].value_counts()['left_only'])
+print("Number of rows Both for SC County merge:", merge_sct['_merge'].value_counts()['both'])
 merge_sct = merge_sct.drop('_merge',axis=1)
 
 ## Municipality
@@ -119,11 +119,12 @@ merge_sct = pd.merge(merge_sct,
                     left_on=['muni_name'],
                     right_on = ['Municipality Name'],
                     indicator = True)
-print("Number of rows left-only for SC Muni merge:", merge_sct['_merge'].value_counts()['left_only'])
+print("Number of rows both for SC Muni merge:", merge_sct['_merge'].value_counts()['both'])
 merge_sct = merge_sct.drop('_merge',axis=1)
 print("Number of unique values in 'Municipality Name':", merge_sct['Municipality Name'].nunique())
 
 ## School 
+school = school[~school['School District Name'].str.contains('Total')]
 merge_sct = pd.merge(merge_sct,
                     school[['School Code','School District Name', 'Total School Select Tax Received (k)', 'School Real Property Taxes and Assessments (k)', 'School Local Revenues (k)',
                             'School Total Revenues (k)', '% School Property revenue from select tax', '% School Local revenue from select tax',
@@ -132,7 +133,8 @@ merge_sct = pd.merge(merge_sct,
                     left_on=['school_code'],
                     right_on = ['School Code'],
                     indicator = True)
-print("Number of rows left-only for SC School merge:", merge_sct['_merge'].value_counts()['left_only'])
+print("Number of rows both for SC School merge:", merge_sct['_merge'].value_counts()['both'])
+
 merge_sct = merge_sct.drop('_merge',axis=1)
 
 
@@ -174,51 +176,5 @@ merge_sct.to_csv(f'Output/{taxcode}/{taxcode}_{prefix}_Hedonic_ana_sct.csv')
 ###################
 
 
-#%% Sales HPI
-###
-###
-#%% Importing county housing price index document from 
-# https://www.fhfa.gov/DataTools/Downloads/Pages/House-Price-Index-Datasets.aspx
 
-hpi = pd.read_csv('Input/Real Estate Transactions/HPI_AT_BDL_county.csv',dtype={'HPI': float, 'Year':str}, na_values='.')
-hpi['County'] = hpi['County'].str.lower()
-hpi['County'] = hpi['County'].str.replace('St Lawrence', 'St. lawrence')
-
-
-# adk_county_list = ['clinton', 'essex', 'frankin', 'fulton', 'hamilton', 
-#                   'herkimer', 'lewis', 'oneida', 'st_lawrence', 'saratoga', 
-#                   'warren', 'washington' ]
-
-# cat_county_list = ['delaware', 'greene', 'sullivan', 'ulster']
-
-# hpi = hpi.drop(hpi[~(hpi['State']=='NY')].index)
-
-# hpi_adk = hpi[hpi.County.isin(adk_county_list)]
-# hpi_cat = hpi[hpi.County.isin(cat_county_list)]
-
-# merged_hpi = pd.concat([hpi_adk, hpi_cat])
-#%% Creating a HPI column for reference year 2021
-
-# Drop un-needed cols
-clean_hpi = hpi.drop(columns=['State', 'FIPS code', 'Annual Change (%)', 'HPI with 1990 base', 'HPI with 2000 base'])
-
-# Subset of only 2021 data
-clean_hpi['HPI'] = clean_hpi['HPI'].astype(float)
-clean_hpi = clean_hpi.set_index(['County', 'Year'])
-hpi_2021 = clean_hpi.xs('2021', level='Year')
-
-# hpi_2021['Multiplier'] = clean_hpi/hpi_2021 #Multiplier? unsure how this is supposed to work
-
-# Merging with sct merged data
-
-# merge_sct = pd.merge(merge_sct,
-#                     school[['School Code','School District Name', 'Total School Select Tax Received (k)', 'School Real Property Taxes and Assessments (k)', 'School Local Revenues (k)',
-#                             'School Total Revenues (k)', '% School Property revenue from select tax', '% School Local revenue from select tax',
-#                             '% School Total revenue from select tax']],
-#                     how='left',
-#                     left_on=['school_code'],
-#                     right_on = ['School Code'],
-#                     indicator = True)
-# print("Number of rows left-only for SC School merge:", merge_sct['_merge'].value_counts()['left_only'])
-# merge_sct = merge_sct.drop('_merge',axis=1)
 

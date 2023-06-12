@@ -108,7 +108,9 @@ parcel['Municipality Name'] = parcel['Municipality Name'].replace('Saratoga Spri
 
 # Dropping not filed towns
 county_budget = county_budget[county_budget['Real Property Taxes and Assessments'] != 'Not Filed']
+town_budgetNA = town_budget[town_budget['Real Property Taxes and Assessments'] == 'Not Filed']
 town_budget = town_budget[town_budget['Real Property Taxes and Assessments'] != 'Not Filed']
+
 
 # Formatting name column for join 
 county_budget['County'] = county_budget['County'].replace('St. Lawrence', 'St Lawrence')
@@ -250,6 +252,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     
     # Municipality table
     munic_sum = func_parcel_tax.groupby(['Municipality Name'])['Parcel Municipal Tax Paid'].agg(['sum', 'mean', 'count']).reset_index()
+    munic_sum['County'] = func_parcel_tax.groupby('Municipality Name')['County'].first().reset_index(drop=True)
     munic_sum['Subdiv FIPS'] = func_parcel_tax.groupby('Municipality Name')['Subdiv FIPS'].first().reset_index(drop=True)
     munic_sum['SWIS'] = func_parcel_tax.groupby('Municipality Name')['SWIS'].first().reset_index(drop=True).astype(str)
     munic_sum['sum'] = munic_sum['sum'].round(2)
@@ -307,9 +310,12 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     
     ## Municipal budget to Municipal summary table
     town_budget['Municipality Name'] = town_budget['Entity Name'].str.replace('^Town of ', '', regex=True)
+    town_budget['County'] = town_budget['County'].replace('St. Lawrence', 'St Lawrence')
     munic_sum_total = munic_sum_total.merge(town_budget[['Municipality Name','Real Property Taxes and Assessments',
-                                                             'Local Revenues','Total Revenues']],
-                                              on = 'Municipality Name', how = 'left', indicator = True)
+                                                             'Local Revenues','Total Revenues','County']],
+                                              on = ['Municipality Name','County'], 
+                                              how = 'left', 
+                                              indicator = True)
     failed_rows = munic_sum_total[munic_sum_total['_merge'] != 'both']
     failed_rows.to_csv('failed_munic_rows.csv')
     munic_sum_total = munic_sum_total.drop(['_merge'],axis=1)
