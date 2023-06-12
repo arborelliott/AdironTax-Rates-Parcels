@@ -165,18 +165,23 @@ merged_adk_counties = pd.concat([adk_county_data_1419, adk_county_data_20cur])
 ##############################
 
 #Fixes leading 0 
+
 merged_adk_counties['swis_code'] = merged_adk_counties['swis_code'].str.zfill(6)
+
 
 merged_adk_counties[['sale_price', 'total_av']] = merged_adk_counties[['sale_price', 'total_av']].astype(float)
 merged_adk_counties['print_key'] = merged_adk_counties['print_key'].astype(str)
 merged_adk_counties['sale_date'] = pd.to_datetime(merged_adk_counties['sale_date'])
 merged_adk_counties['merged_swis_print'] = merged_adk_counties['print_key']+merged_adk_counties['swis_code']
+merged_adk_counties = merged_adk_counties.sort_values(['std_date']).drop_duplicates(['merged_swis_print'],keep = 'last')
+
 
 #%% 
-trim_dups = merged_adk_counties.dropna(subset=['merged_swis_print'])
-is_dup = merged_adk_counties.duplicated(subset=['merged_swis_print'])
-duplicate_rows = merged_adk_counties[is_dup]
-merged_adk_counties = trim_dups[~is_dup]  
+# trim_dups = merged_adk_counties.dropna(subset=['merged_swis_print'])
+# is_dup = merged_adk_counties.duplicated(subset=['merged_swis_print'])
+# duplicate_rows = merged_adk_counties[is_dup]
+# merged_adk_counties = trim_dups[~is_dup] 
+ 
 merged_adk_counties['county_name'] = merged_adk_counties['county_name'].str.replace('St Lawrence', 'st_lawrence')
 
 merged_adk_counties = merged_adk_counties.rename(columns={'Year':'year'})
@@ -271,10 +276,8 @@ def merge_county(df, HPI, prefix = '',):
     # Setting Index
     df.set_index(['county_name','year'], inplace=True)
     
-    # Dropping 2023 and invalid Sales
-    df = df.drop(index='2023', level='year')
-    #df = df.drop(index='nan', level='year')
-    df = df.dropna(subset=df.columns[df.isna().any()])
+    # Dropping 2023 sales
+    # df = df.drop(index='2023', level='year')
     
     # Merge from index
     df = pd.merge(df,HPI,
@@ -287,10 +290,9 @@ def merge_county(df, HPI, prefix = '',):
     
     # Merge DF for checking
     df_left_only = df[df['_merge'] == 'left_only']
-    df = df.drop('_merge', axis=1)
+    #df = df.drop('_merge', axis=1)
     
-    ##### Calculating Columns
-    
+    # Calculating Columns
     df['adjusted_amt'] = df['sale_price']* df['hpi']
     df['adjusted_amt'] = df['adjusted_amt'].astype(float)
 
@@ -307,15 +309,15 @@ def merge_county(df, HPI, prefix = '',):
     df['merged_swis_print'] = df['print_key']+df['swis_code']   
     df = df[df['arms_length_flag']=='Y'] # Dropping arms-length
     
-    # Dropping Duplicates
-    
-    
     
     # Drop sales under 10k
-    df_10k = df.drop(df[(df['sale_price'] < 10000)].index)
+    df_10k = df.drop(df[(df['sale_price'] < 10000)])
     
-    
+    # return df
     return df, df_left_only,df_10k
+
+# merged_cat_counties = merge_county(merged_cat_counties,hpi_2021_mult_cat, prefix='Cat')
+# merged_adk_counties = merge_county(merged_adk_counties,hpi_2021_mult_adk, prefix='Adk')
 
 merged_cat_counties, df_left_only_cat,df_10k_Cat = merge_county(merged_cat_counties,hpi_2021_mult_cat, prefix='Cat')
 merged_adk_counties, df_left_only_adk,df_10k_adk = merge_county(merged_adk_counties,hpi_2021_mult_adk, prefix='Adk')
