@@ -384,11 +384,13 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
                                            on='School District Name', how='left')
     func_parcel_tax = func_parcel_tax.rename(columns={'sum': 'Total School Select Tax Received (k)'})
 
+
     # Graphs
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["figure.figsize"] = [7.00, 7.00]
     plt.rcParams["figure.autolayout"] = True
        
+    
     # Percentages
     # County Local Revenue from {taxcode} Tax by County
     county_names = county_sum_total['County'].astype(str)
@@ -452,13 +454,6 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_School_sum.png')
     plt.show()
 
-
-    
-    # Renaming sum column in all datasets
-    county_sum_total = county_sum_total.rename(columns={'sum': 'Total County Select Tax Received (k)'})
-    munic_sum_total = munic_sum_total.rename(columns={'sum': 'Total Municipal Select Tax Received (k)'})
-    school_sum_total = school_sum_total.rename(columns={'sum': 'Total School Select Tax Received (k)'})
-    
     # Merging With Census Data
     county_sum_total = county_sum_total.merge(county_census, left_on='County FIPS', right_on='county',how = 'left')
     county_sum_total = county_sum_total.drop(['NAME','COUNTY','Unnamed: 0',
@@ -467,6 +462,20 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     munic_sum_total = munic_sum_total.merge(subdiv_census, left_on='Subdiv FIPS', right_on='county subdivision',how = 'left')
     munic_sum_total = munic_sum_total.drop(['NAME','COUNTY','Unnamed: 0',
                                               'GEO_ID','state','county'],axis = 1)
+    
+    # Calculating per income / per capita 
+    ## County
+    county_sum_total['County Tax Subsidy per capita'] = county_sum_total['sum'].div(county_sum_total['total Pop']).fillna(0)
+    county_sum_total['County Tax subsidy per dollar income'] = county_sum_total['sum'].div(county_sum_total['aggregate (k)']).fillna(0)
+    ## Munic
+    munic_sum_total['Municipal Tax Subsidy per capita'] = munic_sum_total['sum'].div(munic_sum_total['total Pop']).fillna(0)
+    munic_sum_total['Municipal Tax subsidy per dollar income'] = munic_sum_total['sum'].div(munic_sum_total['aggregate (k)']).fillna(0)
+
+    # Renaming sum column in all datasets
+    county_sum_total = county_sum_total.rename(columns={'sum': 'Total County Select Tax Received (k)'})
+    munic_sum_total = munic_sum_total.rename(columns={'sum': 'Total Municipal Select Tax Received (k)'})
+    school_sum_total = school_sum_total.rename(columns={'sum': 'Total School Select Tax Received (k)'})
+
     
     # Making sure codes are strings
     munic_sum_total['SWIS'] = munic_sum_total['SWIS'].astype(str)
@@ -485,6 +494,9 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
         munic_sum_total.to_excel(writer, sheet_name = 'Municipality Summary')
         school_sum_total.to_excel(writer, sheet_name = 'School Summary')
         overall_total.to_excel(writer, sheet_name = 'Overall Summary')
+    
+    return func_parcel_tax, county_sum_total,munic_sum_total,school_sum_total,overall_total
+
                 
 #%% Functions
 '''
@@ -500,12 +512,35 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
             class 932 = tax 532b Other State-owned land under Section 532-b, c, d, e, f, or g
             class 990 = Other taxable state land assessments
 '''
+## Catskills 532a
+cat_parcel_tax_532a, cat_county_sum_532a, cat_munic_sum_532a, cat_school_sum_532a, cat_overall_sum_532a = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =931)
+## Adk 532a
+adk_parcel_tax_532a, adk_county_sum_532a, adk_munic_sum_532a, adk_school_sum_532a, adk_overall_sum_532a = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =931)
+## All region 532a
+# all_parcel_tax_532a, all_county_sum_532a, all_munic_sum_532a, all_school_sum_532a, all_overall_sum_532a = export_tax_data(all_parcel_tax, prefix='all', pclass =931)
 
-export_tax_data(cat_parcel_tax, prefix='Cat', pclass =931)
-export_tax_data(adk_parcel_tax, prefix='Adk', pclass =931)
-# export_tax_data(all_parcel_tax, prefix='all', pclass =931)
+## Catskills easements
+cat_parcel_tax_easment, cat_county_sum_easment, cat_munic_sum_easment, cat_school_sum_easment, cat_overall_sum_easment = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =980)
+## Adk 523a
+adk_parcel_tax_easment, adk_county_sum_easment, adk_munic_sum_easment, adk_school_sum_easment, adk_overall_sum_easment = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =980)
+
+## Catskills reforested
+cat_parcel_tax_reforested, cat_county_sum_reforested, cat_munic_sum_reforested, cat_school_sum_reforested, cat_overall_sum_reforested = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =940)
+## Adk reforested
+adk_parcel_tax_reforested, adk_county_sum_reforested, adk_munic_sum_reforested, adk_school_sum_reforested, adk_overall_sum_reforested = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =940)
+
+## Catskills 532bg
+cat_parcel_tax_532bg, cat_county_sum_532bg, cat_munic_sum_532bg, cat_school_sum_532bg, cat_overall_sum_532bg = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =932)
+## Adk 532bg
+adk_parcel_tax_532bg, adk_county_sum_532bg, adk_munic_sum_532bg, adk_school_sum_532bg, adk_overall_sum_532bg = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =932)
+
+## Catskills other
+cat_parcel_tax_other, cat_county_sum_other, cat_munic_sum_other, cat_school_sum_other, cat_overall_sum_other = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =990)
+## Adk other
+adk_parcel_tax_other, adk_county_sum_other, adk_munic_sum_other, adk_school_sum_other, adk_overall_sum_other = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =990)
+
 
 ## adk/cat region, all parcels, all tax codes. 
-#export_tax_data(all_parcel_tax, prefix='all', pclass ='Allclass')
+# all_parcel_tax_all, all_county_sum_all, all_munic_sum_all, all_school_sum_all, all_overall_sum_all = export_tax_data(all_parcel_tax, prefix='all', pclass ='Allclass')
 
 
