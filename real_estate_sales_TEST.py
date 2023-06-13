@@ -175,6 +175,8 @@ merged_adk_counties['sale_date'] = pd.to_datetime(merged_adk_counties['sale_date
 merged_adk_counties['merged_swis_print'] = merged_adk_counties['print_key']+merged_adk_counties['swis_code']
 merged_adk_counties = merged_adk_counties.sort_values(['std_date']).drop_duplicates(['merged_swis_print'],keep = 'last')
 
+merged_adk_counties = merged_adk_counties[merged_adk_counties['arms_length_flag']=='Y']
+
 
 #%% 
 # trim_dups = merged_adk_counties.dropna(subset=['merged_swis_print'])
@@ -198,18 +200,6 @@ non_adk_park_munis = non_adk_park_munis.sort_values(['std_date']).drop_duplicate
 
 adk_park_dups = adk_park_munis.duplicated(subset=['merged_swis_print'], keep=False)
 non_adk_park_dups = adk_park_munis.duplicated(subset=['merged_swis_print'], keep=False)
-
-#%% 
-merged_adk_counties.to_csv('Output/Real Estate/merged_adk_counties.csv')
-adk_park_munis.to_csv('Output/Real Estate/adk_park_munis.csv')
-non_adk_park_munis.to_csv('Output/Real Estate/non_adk_park_munis.csv')
-
-
-
-
-
-
-
 
 
 #%% Catskill Real Estate Data
@@ -277,7 +267,7 @@ def merge_county(df, HPI, prefix = '',):
     df.set_index(['county_name','year'], inplace=True)
     
     # Dropping 2023 sales
-    # df = df.drop(index='2023', level='year')
+    df = df.drop(index='2023', level='year')
     
     # Merge from index
     df = pd.merge(df,HPI,
@@ -290,7 +280,7 @@ def merge_county(df, HPI, prefix = '',):
     
     # Merge DF for checking
     df_left_only = df[df['_merge'] == 'left_only']
-    #df = df.drop('_merge', axis=1)
+    df = df.drop('_merge', axis=1)
     
     # Calculating Columns
     df['adjusted_amt'] = df['sale_price']* df['hpi']
@@ -307,26 +297,28 @@ def merge_county(df, HPI, prefix = '',):
     df['swis_code'] = df['swis_code'].astype(str)
     df['sale_date'] = pd.to_datetime(df['sale_date'])
     df['merged_swis_print'] = df['print_key']+df['swis_code']   
-    df = df[df['arms_length_flag']=='Y'] # Dropping arms-length
+    # df = df[df['arms_length_flag']=='Y'] # Dropping arms-length
     
     
     # Drop sales under 10k
-    df_10k = df.drop(df[(df['sale_price'] < 10000)])
+    # df_10k = df[df['sale_price'] >= 10000]
     
     # return df
-    return df, df_left_only,df_10k
+    return df, df_left_only
 
 # merged_cat_counties = merge_county(merged_cat_counties,hpi_2021_mult_cat, prefix='Cat')
 # merged_adk_counties = merge_county(merged_adk_counties,hpi_2021_mult_adk, prefix='Adk')
 
-merged_cat_counties, df_left_only_cat,df_10k_Cat = merge_county(merged_cat_counties,hpi_2021_mult_cat, prefix='Cat')
-merged_adk_counties, df_left_only_adk,df_10k_adk = merge_county(merged_adk_counties,hpi_2021_mult_adk, prefix='Adk')
+merged_cat_counties, df_left_only_cat = merge_county(merged_cat_counties,hpi_2021_mult_cat, prefix='Cat')
+merged_adk_counties, df_left_only_adk = merge_county(merged_adk_counties,hpi_2021_mult_adk, prefix='Adk')
 
 
 #%% 
 
 cat_park_munis = merged_cat_counties[merged_cat_counties.muni_name.isin(cat_muni)]
 non_cat_park_munis = merged_cat_counties[~merged_cat_counties.muni_name.isin(cat_muni)]
+# Removing Arms Length
+merged_cat_counties = merged_cat_counties[merged_cat_counties['arms_length_flag']=='Y']
 
 #%% 
 cat_park_munis = cat_park_munis.sort_values(['sale_date']).drop_duplicates(['merged_swis_print'],keep = 'last')
@@ -337,8 +329,8 @@ non_cat_park_dups = cat_park_munis.duplicated(subset=['merged_swis_print'], keep
 
 #%% Dropping real estate sale prices less than 10k. 
 
-merged_adk_counties_10k = merged_adk_counties.drop(merged_adk_counties[(merged_adk_counties['sale_price'] < 10000)].index)
-merged_cat_counties_10k = merged_cat_counties.drop(merged_cat_counties[(merged_cat_counties['sale_price'] < 10000)].index)
+merged_adk_counties_10k = merged_adk_counties[merged_adk_counties['sale_price'] >= 10000]
+merged_cat_counties_10k = merged_cat_counties[merged_cat_counties['sale_price'] >= 10000]
 
 adk_park_munis_10k = merged_adk_counties_10k[merged_adk_counties_10k.muni_name.isin(adk_muni)]
 non_adk_park_munis_10k = merged_adk_counties_10k[~merged_adk_counties_10k.muni_name.isin(adk_muni)]
@@ -347,7 +339,9 @@ cat_park_munis_10k = merged_cat_counties_10k[merged_cat_counties_10k.muni_name.i
 non_cat_park_munis_10k = merged_cat_counties_10k[~merged_cat_counties_10k.muni_name.isin(cat_muni)]
 
 #%% Saving to csvs
+######## DATA FOR HEDONIC
 merged_adk_counties_10k.to_csv('Output/Real Estate/merged_adk_counties_10k.csv')
+########
 adk_park_munis_10k.to_csv('Output/Real Estate/adk_park_munis_10k.csv')
 non_adk_park_munis_10k.to_csv('Output/Real Estate/non_adk_park_munis_10k.csv')
 

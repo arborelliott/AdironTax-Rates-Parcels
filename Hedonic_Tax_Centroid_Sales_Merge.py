@@ -19,8 +19,11 @@ import pandas as pd
 #%% Importing Data
 
 # Sales
-sales = pd.read_csv('Output/Real Estate/adk_park_munis.csv',
+# sales = pd.read_csv('Output/Real Estate/adk_park_munis.csv',
+#                     dtype = {'print _key':str,'school_code':str})
+sales = pd.read_csv('Output/Real Estate/merged_adk_counties_10k.csv',
                     dtype = {'print _key':str,'school_code':str})
+
                     
 # Centroid
 #### SAMPLE set
@@ -64,6 +67,8 @@ non_unique_count = sales['print_key'].duplicated().sum()
 
 # sales
 sales['school_code'] = sales['school_code'].str.replace('\.0$', '')
+sales['county_name'] = sales['county_name'].str.capitalize()
+sales['county_name'] = sales['county_name'].str.replace('st_lawrence', 'St lawrence')
 
 
 
