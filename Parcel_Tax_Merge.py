@@ -317,7 +317,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
                                               how = 'left', 
                                               indicator = True)
     failed_rows = munic_sum_total[munic_sum_total['_merge'] != 'both']
-    failed_rows.to_csv('failed_munic_rows.csv')
+    #failed_rows.to_csv(f'Output/{taxcode}/{taxcode}_{prefix}_failed_munic_rows.csv') # Error Detecting
     munic_sum_total = munic_sum_total.drop(['_merge'],axis=1)
     
     ### Converting to (k)
