@@ -17,13 +17,13 @@ import numpy as np
 
 hpi = pd.read_csv('Input/Real Estate Transactions/HPI_AT_BDL_county.csv',dtype = str)
 hpi['County'] = hpi['County'].str.lower()
-hpi['County'] = hpi['County'].str.replace('St Lawrence', 'st_lawrence')
+hpi['County'] = hpi['County'].str.replace('st lawrence', 'st_lawrence')
 
 
-adk_county_list = ['clinton', 'essex', 'frankin', 'fulton', 'hamilton', 
+
+adk_county_list = ['clinton', 'essex', 'franklin', 'fulton', 'hamilton', 
                   'herkimer', 'lewis', 'oneida', 'st_lawrence', 'saratoga', 
-                  'warren', 'washington' ]
-
+                  'warren', 'washington']
 cat_county_list = ['delaware', 'greene', 'sullivan', 'ulster']
 
 hpi = hpi.drop(hpi[~(hpi['State']=='NY')].index)
@@ -43,20 +43,31 @@ merged_hpi = merged_hpi.set_index(['county_name', 'year'])
 hpi_2021 = merged_hpi.xs('2021', level='year')
 hpi_2021_mult=merged_hpi/hpi_2021
 
-#%% 
-
 hpi_cat = hpi_cat.drop(columns=['State', 'FIPS code', 'Annual Change (%)', 'HPI with 1990 base', 'HPI with 2000 base'])
 hpi_cat['HPI'] = hpi_cat['HPI'].astype(float)
 hpi_cat = hpi_cat.rename(columns={'County':'county_name', 'Year':'year', 'HPI':'hpi'})
-hpi_cat = hpi_cat.set_index(['county_name', 'year'])
 
+# Setting Index CAT
+hpi_cat = hpi_cat.set_index(['county_name', 'year'])
 hpi_2021 = hpi_cat.xs('2021', level='year')
-hpi_2021_mult=hpi_cat/hpi_2021
+hpi_2021_mult_cat=hpi_cat/hpi_2021
+
+## ADKs
+hpi_adk = hpi_adk.drop(columns=['State', 'FIPS code', 'Annual Change (%)', 'HPI with 1990 base', 'HPI with 2000 base'])
+hpi_adk['HPI'] = hpi_adk['HPI'].astype(float)
+hpi_adk = hpi_adk.rename(columns={'County':'county_name', 'Year':'year', 'HPI':'hpi'})
+
+# Setting Index ADK
+hpi_adk = hpi_adk.set_index(['county_name', 'year'])
+hpi_2021 = hpi_adk.xs('2021', level='year')
+
+hpi_2021_mult_adk = hpi_adk/hpi_2021
+
 
 #%% Importing csv files. Dwnloaded all real estate transacitons from a 
 #   ten year period from counties that contain the Adirondack Park. 
 
-#Manually deleted row 8674 in lewis_14_19.csv due to typo in print key. 
+# Manually deleted row 8674 in lewis_14_19.csv due to typo in print key. 
 
 # There is a typo in line 6383 of warren_14_19 source document. street_nbr cell 
 # was empty from source material. . This change was updated manually in the csv file. 
@@ -64,7 +75,7 @@ hpi_2021_mult=hpi_cat/hpi_2021
 # There is a typo in line 6383 of warren_14_19 source document. street_nbr cell 
 # was empty from source material. . This change was updated manually in the csv file.
 
-#Deleted lines 6802, 7776 manually due to data quality issue.
+# Deleted lines 6802, 7776 manually due to data quality issue.
 
 
 adk_county_list = {'clinton' :'09', 'essex':'15', 'frankin':'16', 'fulton':'17', 
@@ -149,24 +160,34 @@ adk_muni = ['Altona', 'Arietta', 'AuSable', 'Bellmont', 'Benson', 'Black Brook',
 
 adk_counties = [adk_county_data_1419, adk_county_data_20cur]
 #%% Appending datasets together
-
+##############################
 merged_adk_counties = pd.concat([adk_county_data_1419, adk_county_data_20cur])
+##############################
+
 #Fixes leading 0 
+
 merged_adk_counties['swis_code'] = merged_adk_counties['swis_code'].str.zfill(6)
+
 
 merged_adk_counties[['sale_price', 'total_av']] = merged_adk_counties[['sale_price', 'total_av']].astype(float)
 merged_adk_counties['print_key'] = merged_adk_counties['print_key'].astype(str)
 merged_adk_counties['sale_date'] = pd.to_datetime(merged_adk_counties['sale_date'])
 merged_adk_counties['merged_swis_print'] = merged_adk_counties['print_key']+merged_adk_counties['swis_code']
+merged_adk_counties = merged_adk_counties.sort_values(['std_date']).drop_duplicates(['merged_swis_print'],keep = 'last')
+
+merged_adk_counties = merged_adk_counties[merged_adk_counties['arms_length_flag']=='Y']
+
 
 #%% 
-trim_dups = merged_adk_counties.dropna(subset=['merged_swis_print'])
-is_dup = merged_adk_counties.duplicated(subset=['merged_swis_print'])
-duplicate_rows = merged_adk_counties[is_dup]
-merged_adk_counties = trim_dups[~is_dup]  
+# trim_dups = merged_adk_counties.dropna(subset=['merged_swis_print'])
+# is_dup = merged_adk_counties.duplicated(subset=['merged_swis_print'])
+# duplicate_rows = merged_adk_counties[is_dup]
+# merged_adk_counties = trim_dups[~is_dup] 
+ 
+merged_adk_counties['county_name'] = merged_adk_counties['county_name'].str.replace('St Lawrence', 'st_lawrence')
+
+merged_adk_counties = merged_adk_counties.rename(columns={'Year':'year'})
 #%% 
-#Dropping non-arms length sales baed on arms_length_flag column  
-merged_adk_counties = merged_adk_counties[merged_adk_counties['arms_length_flag']=='Y']
 
 # creating two datasets for municipalities that contain the park 
 # and non-park municipalities
@@ -180,15 +201,9 @@ non_adk_park_munis = non_adk_park_munis.sort_values(['std_date']).drop_duplicate
 adk_park_dups = adk_park_munis.duplicated(subset=['merged_swis_print'], keep=False)
 non_adk_park_dups = adk_park_munis.duplicated(subset=['merged_swis_print'], keep=False)
 
-#%% 
-merged_adk_counties.to_csv('Output/Real Estate/merged_adk_counties.csv')
-adk_park_munis.to_csv('Output/Real Estate/adk_park_munis.csv')
-non_adk_park_munis.to_csv('Output/Real Estate/non_adk_park_munis.csv')
-
-
-
 
 #%% Catskill Real Estate Data
+#####################################################################################################################
 cat_county_list = {'delaware':'12', 'greene':'19', 'sullivan':'48', 'ulster':'51'}
 
 #%% 
@@ -234,73 +249,76 @@ cat_muni = [
 
 cat_counties = (cat_county_data_1419, cat_county_data_20cur)
 
-#%% 
+#%% Catskills Merge
 
-#######################################
-# JE CODE ATTEMPT
-
+#################################
 merged_cat_counties = pd.concat([cat_county_data_1419,cat_county_data_20cur])
+#################################
+
 
 # Formatting columns for join
-merged_cat_counties['county_name'] = merged_cat_counties['county_name'].str.lower()
+def merge_county(df, HPI, prefix = '',):   
+    df['county_name'] = df['county_name'].str.lower()
+    df['county_name'] = df['county_name'].astype(str)
+    df['year'] = df['year'].astype(str)
+    df['year'] = df['year'].where(~df['year'].str.endswith('.0'), df['year'].str[:-2])
+    
+    # Setting Index
+    df.set_index(['county_name','year'], inplace=True)
+    
+    # Dropping 2023 sales
+    df = df.drop(index='2023', level='year')
+    
+    # Merge from index
+    df = pd.merge(df,HPI,
+                        how='left',
+                        left_index = True,
+                        right_index = True,
+                        indicator = True)
+    
+    print(f"Number of rows left-only for {prefix} HPI mult merge:", df['_merge'].value_counts()['left_only'])
+    
+    # Merge DF for checking
+    df_left_only = df[df['_merge'] == 'left_only']
+    df = df.drop('_merge', axis=1)
+    
+    # Calculating Columns
+    df['adjusted_amt'] = df['sale_price']* df['hpi']
+    df['adjusted_amt'] = df['adjusted_amt'].astype(float)
 
-merged_cat_counties['county_name'] = merged_cat_counties['county_name'].astype(str)
-merged_cat_counties['year'] = merged_cat_counties['year'].astype(str)
-merged_cat_counties['year'] = merged_cat_counties['year'].where(~merged_cat_counties['year'].str.endswith('.0'), merged_cat_counties['year'].str[:-2])
+    df['sale_date'] = pd.to_datetime(df['sale_date'])
+    df['sale_price'] = pd.to_numeric(df['sale_price'],errors='coerce') 
+    df['total_av'] = pd.to_numeric(df['total_av'],errors='coerce')
+    df = df.dropna(subset=['sale_price', 'total_av'])
+    df[['sale_price', 'total_av']] = df[['sale_price', 'total_av']].astype(int)
+    
+    #  Formating columns
+    df['print_key'] = df['print_key'].astype(str)
+    df['swis_code'] = df['swis_code'].astype(str)
+    df['sale_date'] = pd.to_datetime(df['sale_date'])
+    df['merged_swis_print'] = df['print_key']+df['swis_code']   
+    # df = df[df['arms_length_flag']=='Y'] # Dropping arms-length
+    
+    
+    # Drop sales under 10k
+    # df_10k = df[df['sale_price'] >= 10000]
+    
+    # return df
+    return df, df_left_only
 
-# Setting Index
-merged_cat_counties.set_index(['county_name','year'], inplace=True)
+# merged_cat_counties = merge_county(merged_cat_counties,hpi_2021_mult_cat, prefix='Cat')
+# merged_adk_counties = merge_county(merged_adk_counties,hpi_2021_mult_adk, prefix='Adk')
 
-# Dropping 2023 and invalid Sales
-merged_cat_counties = merged_cat_counties.drop(index='2023', level='year')
-merged_cat_counties = merged_cat_counties.drop(index='nan', level='year')
-
-# Merge from index
-merged_cat_counties = pd.merge(merged_cat_counties,hpi_2021_mult,
-                    how='left',
-                    left_index = True,
-                    right_index = True,
-                    indicator = True)
-
-print("Number of rows left-only for HPI mult merge:", merged_cat_counties['_merge'].value_counts()['left_only'])
-
-
-# Merge DF for checking
-# mergecat_left_only = merged_cat_counties[merged_cat_counties['_merge'] == 'left_only']
-# del mergecat_left_only
-
-#%%
-#######################################
-# Columns not merging correctly hpi, adjusted_amt are listed as nan. 
-# merged_cat_counties = pd.concat([cat_county_data_1419,cat_county_data_20cur, hpi_2021_mult])
-           
-# merged_cat_counties['hpi'] = merged_cat_counties['hpi'].astype(float)
-
-merged_cat_counties['adjusted_amt'] = merged_cat_counties['sale_price']* merged_cat_counties['hpi']
-
-merged_cat_counties['adjusted_amt'] = merged_cat_counties['adjusted_amt'].astype(float)
+merged_cat_counties, df_left_only_cat = merge_county(merged_cat_counties,hpi_2021_mult_cat, prefix='Cat')
+merged_adk_counties, df_left_only_adk = merge_county(merged_adk_counties,hpi_2021_mult_adk, prefix='Adk')
 
 
-merged_cat_counties['sale_date'] = pd.to_datetime(merged_cat_counties['sale_date'])
-
-merged_cat_counties['sale_price'] = pd.to_numeric(merged_cat_counties['sale_price'],errors='coerce') 
-merged_cat_counties['total_av'] = pd.to_numeric(merged_cat_counties['total_av'],errors='coerce')
-merged_cat_counties = merged_cat_counties.dropna(subset=['sale_price', 'total_av'])
-
-merged_cat_counties[['sale_price', 'total_av']] = merged_cat_counties[['sale_price', 'total_av']].astype(int)
-
-#%%  Formating Merged_cat_counties columns
-
-merged_cat_counties['print_key'] = merged_cat_counties['print_key'].astype(str)
-merged_cat_counties['swis_code'] = merged_cat_counties['swis_code'].astype(str)
-merged_cat_counties['sale_date'] = pd.to_datetime(merged_cat_counties['sale_date'])
-merged_cat_counties['merged_swis_print'] = merged_cat_counties['print_key']+merged_cat_counties['swis_code']
-#%% Dropping arms length sales
-
-merged_cat_counties = merged_cat_counties[merged_cat_counties['arms_length_flag']=='Y']
+#%% 
 
 cat_park_munis = merged_cat_counties[merged_cat_counties.muni_name.isin(cat_muni)]
 non_cat_park_munis = merged_cat_counties[~merged_cat_counties.muni_name.isin(cat_muni)]
+# Removing Arms Length
+merged_cat_counties = merged_cat_counties[merged_cat_counties['arms_length_flag']=='Y']
 
 #%% 
 cat_park_munis = cat_park_munis.sort_values(['sale_date']).drop_duplicates(['merged_swis_print'],keep = 'last')
@@ -311,8 +329,8 @@ non_cat_park_dups = cat_park_munis.duplicated(subset=['merged_swis_print'], keep
 
 #%% Dropping real estate sale prices less than 10k. 
 
-merged_adk_counties_10k = merged_adk_counties.drop(merged_adk_counties[(merged_adk_counties['sale_price'] < 10000)].index)
-merged_cat_counties_10k = merged_cat_counties.drop(merged_cat_counties[(merged_cat_counties['sale_price'] < 10000)].index)
+merged_adk_counties_10k = merged_adk_counties[merged_adk_counties['sale_price'] >= 10000]
+merged_cat_counties_10k = merged_cat_counties[merged_cat_counties['sale_price'] >= 10000]
 
 adk_park_munis_10k = merged_adk_counties_10k[merged_adk_counties_10k.muni_name.isin(adk_muni)]
 non_adk_park_munis_10k = merged_adk_counties_10k[~merged_adk_counties_10k.muni_name.isin(adk_muni)]
@@ -321,7 +339,9 @@ cat_park_munis_10k = merged_cat_counties_10k[merged_cat_counties_10k.muni_name.i
 non_cat_park_munis_10k = merged_cat_counties_10k[~merged_cat_counties_10k.muni_name.isin(cat_muni)]
 
 #%% Saving to csvs
+######## DATA FOR HEDONIC
 merged_adk_counties_10k.to_csv('Output/Real Estate/merged_adk_counties_10k.csv')
+########
 adk_park_munis_10k.to_csv('Output/Real Estate/adk_park_munis_10k.csv')
 non_adk_park_munis_10k.to_csv('Output/Real Estate/non_adk_park_munis_10k.csv')
 
@@ -340,3 +360,6 @@ non_cat_park_munis.to_csv('Output/Real Estate/non_cat_park_munis.csv')
 merged_adk_counties.to_csv('Output/Real Estate/merged_adk_counties.csv')
 adk_park_munis.to_csv('Output/Real Estate/adk_park_munis.csv')
 non_adk_park_munis.to_csv('Output/Real Estate/non_adk_park_munis.csv')
+
+#%% FUNCTION
+
