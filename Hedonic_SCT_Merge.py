@@ -1,13 +1,25 @@
 # -*- coding: utf-8 -*-
 """
 
-@author: Jordan
+@author: Jordan Elliott
 
+This script merges together three other primary data sets: sales, Centroids, and tax information. 
+The output is the centroids data set with sales associated to applicable parcels, and tax data applied to ADK localities. 
 
- Joining:
-     real estate sales parcels
-     Parcel centroids
-     State spending summaries
+    INPUT:
+
+        1. merged_adk_counties_10k.csv (From Read_estate_sales.py): Sales data for ADK parcels, sold for over 10k.
+        2. Centroid_parcels_data.zip: Parcel centroid data for NYS
+        3. {taxcode}_{prefix}_parcel_tax.xlsx (From Parcel_Tax_Merge.py): Data on tax received for each locality in either ADK or CAT
+
+    OUTPUT:
+            {taxcode}_{prefix}_Hedonic_ana_sct.csv: Output for Hedonic analysis
+        
+        
+    VARIABLES:
+        Pclass: Specify property code desired
+        Prefix: Specify prefix if imported and exported data
+
 
 
     NOTES: 
@@ -27,8 +39,8 @@ sales = pd.read_csv('Output/Real Estate/merged_adk_counties_10k.csv',
                     
 # Centroid
 #### SAMPLE set
-centroid_sam = pd.read_csv('Hedonic Analysis/Output/adk_centroids_sample.csv',dtype = {'PRINT_KEY':str})
-centroid = centroid_sam
+# centroid_sam = pd.read_csv('Hedonic Analysis/Output/adk_centroids_sample.csv',dtype = {'PRINT_KEY':str})
+# centroid = centroid_sam
 #### Primary set
 centroid = pd.read_pickle('Hedonic Analysis/Output/Centroid_parcels_data.zip')
 

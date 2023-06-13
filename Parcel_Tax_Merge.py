@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 
-@author: Jordan
+@author: Jordan Elliott
 
 3. This should be run after Boundaries_Merge and census_api
     This script imports tax rate data from the previous script, and parcel data from assessment rolls. 
