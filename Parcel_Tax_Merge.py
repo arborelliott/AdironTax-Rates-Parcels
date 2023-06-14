@@ -215,7 +215,7 @@ all_parcel_tax = merged_parcel_tax
 
 #%% Summary tables and graphs function
 
-def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
+def export_tax_data(func_parcel_tax, prefix='', pclass ='',sort = False, graphs = False):
     
     # Property Class subset
     classdisct = {931:'532a', 980:'Easments', 940:'Reforested_other',932:'532b',990:'Other'}
@@ -237,6 +237,9 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     county_sum['County FIPS'] = func_parcel_tax.groupby('County')['County FIPS'].first().reset_index(drop=True) # inclue county FIPS code
     county_sum['sum'] = county_sum['sum'].round(2)
     
+    if sort:
+        county_sum.sort_values(by='sum', ascending=False, inplace=True)
+    
     ## County table (total row)
     total_sum = county_sum['sum'].sum()
     total_mean = county_sum['mean'].mean()
@@ -256,6 +259,9 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     munic_sum['Subdiv FIPS'] = func_parcel_tax.groupby('Municipality Name')['Subdiv FIPS'].first().reset_index(drop=True)
     munic_sum['SWIS'] = func_parcel_tax.groupby('Municipality Name')['SWIS'].first().reset_index(drop=True).astype(str)
     munic_sum['sum'] = munic_sum['sum'].round(2)
+    
+    if sort:
+        munic_sum.sort_values(by='sum', ascending=False, inplace=True)
     
     # Municipality table (total row)
     total_sum = munic_sum['sum'].sum()
@@ -278,6 +284,9 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
     total_sum = school_sum['sum'].sum()
     total_mean = school_sum['mean'].mean()
     total_count = school_sum['count'].sum()
+    
+    if sort:
+        school_sum.sort_values(by='sum', ascending=False, inplace=True)
     
     total_row = pd.Series({'Locality': 'School','School District Name':'Total','sum': total_sum, 'mean': total_mean, 'count': total_count}, name='School Total')
     school_sum_total = school_sum.iloc[:]
@@ -386,73 +395,78 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
 
 
     # Graphs
-    plt.rcParams["font.family"] = "Times New Roman"
-    plt.rcParams["figure.figsize"] = [7.00, 7.00]
-    plt.rcParams["figure.autolayout"] = True
-       
     
-    # Percentages
-    # County Local Revenue from {taxcode} Tax by County
-    county_names = county_sum_total['County'].astype(str)
-    plt.barh(county_names, county_sum_total['% County Local revenue from select tax'], color='orange')
-    plt.xlabel(f'% of County Local Revenue from {taxcode} Tax')
-    plt.ylabel('County')
-    plt.title(f'Percentage of {prefix} County Local Revenue from {taxcode} Tax by County')
-    plt.yticks(rotation=0)
-    plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_county_percent.png')
-    plt.show()
-    del county_names
+    if graphs:
+        
+        plt.rcParams["font.family"] = "Times New Roman"
+        plt.rcParams["figure.figsize"] = [7.00, 7.00]
+        plt.rcParams["figure.autolayout"] = True
+           
+        
+        # Percentages
+        # County Local Revenue from {taxcode} Tax by County
+        county_names = county_sum_total['County'].astype(str)
+        
+        
+        plt.barh(county_names, county_sum_total['% County Local revenue from select tax'], color='orange')
+        plt.xlabel(f'% of County Local Revenue from {taxcode} Tax')
+        plt.ylabel('County')
+        plt.title(f'Percentage of {prefix} County Local Revenue from {taxcode} Tax by County')
+        plt.yticks(rotation=0)
+        plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_county_percent.png')
+        plt.show()
+        del county_names
+        
+        # Municipality Local Revenue from {taxcode} Tax by Municipality
+        munic_names = munic_sum_total['Municipality Name'].astype(str)
+        plt.barh(munic_names, munic_sum_total['% Municipality Local revenue from select tax'], color='orange')
+        plt.xlabel(f'% of Municipality Local Revenue from {taxcode} Tax')
+        plt.ylabel('Municipality')
+        plt.title(f'Percentage of {prefix} Municipality Local Revenue from {taxcode} Tax by Municipality')
+        plt.yticks(rotation=0, fontsize=5)
+        plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_Municipality_percent.png')
+        plt.show()
+        del munic_names
+        
+        # School Local Revenue from {taxcode} Tax by School
+        school_names = school_sum_total['School District Name'].astype(str)
+        plt.barh(school_names, school_sum_total['% School Local revenue from select tax'], color='orange')
+        plt.xlabel(f'% of School Local Revenue from {taxcode} Tax')
+        plt.ylabel('School')
+        plt.title(f'Percentage of {prefix} School Local Revenue from {taxcode} Tax by School')
+        plt.yticks(rotation=0, fontsize=5)
+        plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_school_sum_total.png')
+        plt.show()
+        del school_names
     
-    # Municipality Local Revenue from {taxcode} Tax by Municipality
-    munic_names = munic_sum_total['Municipality Name'].astype(str)
-    plt.barh(munic_names, munic_sum_total['% Municipality Local revenue from select tax'], color='orange')
-    plt.xlabel(f'% of Municipality Local Revenue from {taxcode} Tax')
-    plt.ylabel('Municipality')
-    plt.title(f'Percentage of {prefix} Municipality Local Revenue from {taxcode} Tax by Municipality')
-    plt.yticks(rotation=0, fontsize=5)
-    plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_Municipality_percent.png')
-    plt.show()
-    del munic_names
     
-    # School Local Revenue from {taxcode} Tax by School
-    school_names = school_sum_total['School District Name'].astype(str)
-    plt.barh(school_names, school_sum_total['% School Local revenue from select tax'], color='orange')
-    plt.xlabel(f'% of School Local Revenue from {taxcode} Tax')
-    plt.ylabel('School')
-    plt.title(f'Percentage of {prefix} School Local Revenue from {taxcode} Tax by School')
-    plt.yticks(rotation=0, fontsize=5)
-    plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_school_sum_total.png')
-    plt.show()
-    del school_names
-
-
-    # Totals
-    # Sum of County Tax Paid on {taxcode} by County
-    plt.barh(county_sum['County'], county_sum['sum'], color = 'blue')
-    plt.xlabel('Sum of County Tax Paid (in k)')
-    plt.ylabel('County')
-    plt.title(f'{prefix} Sum of County Tax Paid on {taxcode} by County')
-    plt.yticks(rotation=0)
-    plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_county_sum.png')
-    plt.show()
-    
-    # Sum of Municipality Tax Paid on {taxcode} by Municipality
-    plt.barh(munic_sum['Municipality Name'], munic_sum['sum'], color = 'blue')
-    plt.xlabel('Sum of Municipality Tax Paid (in k)')
-    plt.ylabel('Municipality')
-    plt.title(f'{prefix} Sum of Municipality Tax Paid on {taxcode} by Municipality')
-    plt.yticks(rotation=0, fontsize=5)
-    plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_Municipality_sum.png')
-    plt.show()
-    
-    # Sum of School Tax Paid on {taxcode} by School
-    plt.barh(school_sum['School District Name'], school_sum['sum'], color = 'blue')
-    plt.xlabel('Sum of School Tax Paid (in k)')
-    plt.ylabel('School')
-    plt.title(f'{prefix} Sum of School Tax Paid on {taxcode} by School')
-    plt.yticks(rotation=0, fontsize=5)
-    plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_School_sum.png')
-    plt.show()
+        # Totals
+        # Sum of County Tax Paid on {taxcode} by County
+        plt.barh(county_sum['County'], county_sum['sum'], color = 'blue')
+        plt.xlabel('Sum of County Tax Paid (in k)')
+        plt.ylabel('County')
+        plt.title(f'{prefix} Sum of County Tax Paid on {taxcode} by County')
+        plt.yticks(rotation=0)
+        plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_county_sum.png')
+        plt.show()
+        
+        # Sum of Municipality Tax Paid on {taxcode} by Municipality
+        plt.barh(munic_sum['Municipality Name'], munic_sum['sum'], color = 'blue')
+        plt.xlabel('Sum of Municipality Tax Paid (in k)')
+        plt.ylabel('Municipality')
+        plt.title(f'{prefix} Sum of Municipality Tax Paid on {taxcode} by Municipality')
+        plt.yticks(rotation=0, fontsize=5)
+        plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_Municipality_sum.png')
+        plt.show()
+        
+        # Sum of School Tax Paid on {taxcode} by School
+        plt.barh(school_sum['School District Name'], school_sum['sum'], color = 'blue')
+        plt.xlabel('Sum of School Tax Paid (in k)')
+        plt.ylabel('School')
+        plt.title(f'{prefix} Sum of School Tax Paid on {taxcode} by School')
+        plt.yticks(rotation=0, fontsize=5)
+        plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_School_sum.png')
+        plt.show()
 
     # Merging With Census Data
     county_sum_total = county_sum_total.merge(county_census, left_on='County FIPS', right_on='county',how = 'left')
@@ -513,34 +527,137 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='' ):
             class 990 = Other taxable state land assessments
 '''
 ## Catskills 532a
-cat_parcel_tax_532a, cat_county_sum_532a, cat_munic_sum_532a, cat_school_sum_532a, cat_overall_sum_532a = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =931)
+cat_parcel_tax_532a, cat_county_sum_532a, cat_munic_sum_532a, cat_school_sum_532a, cat_overall_sum_532a = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =931, sort=True, graphs = True)
 ## Adk 532a
-adk_parcel_tax_532a, adk_county_sum_532a, adk_munic_sum_532a, adk_school_sum_532a, adk_overall_sum_532a = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =931)
+adk_parcel_tax_532a, adk_county_sum_532a, adk_munic_sum_532a, adk_school_sum_532a, adk_overall_sum_532a = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =931, sort=True, graphs = True)
 ## All region 532a
 # all_parcel_tax_532a, all_county_sum_532a, all_munic_sum_532a, all_school_sum_532a, all_overall_sum_532a = export_tax_data(all_parcel_tax, prefix='all', pclass =931)
 
 ## Catskills easements
-cat_parcel_tax_easment, cat_county_sum_easment, cat_munic_sum_easment, cat_school_sum_easment, cat_overall_sum_easment = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =980)
+cat_parcel_tax_easment, cat_county_sum_easment, cat_munic_sum_easment, cat_school_sum_easment, cat_overall_sum_easment = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =980, sort=True, graphs = True)
 ## Adk 523a
-adk_parcel_tax_easment, adk_county_sum_easment, adk_munic_sum_easment, adk_school_sum_easment, adk_overall_sum_easment = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =980)
+adk_parcel_tax_easment, adk_county_sum_easment, adk_munic_sum_easment, adk_school_sum_easment, adk_overall_sum_easment = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =980, sort=True, graphs = True)
 
 ## Catskills reforested
-cat_parcel_tax_reforested, cat_county_sum_reforested, cat_munic_sum_reforested, cat_school_sum_reforested, cat_overall_sum_reforested = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =940)
+cat_parcel_tax_reforested, cat_county_sum_reforested, cat_munic_sum_reforested, cat_school_sum_reforested, cat_overall_sum_reforested = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =940, sort=True, graphs = False)
 ## Adk reforested
-adk_parcel_tax_reforested, adk_county_sum_reforested, adk_munic_sum_reforested, adk_school_sum_reforested, adk_overall_sum_reforested = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =940)
+adk_parcel_tax_reforested, adk_county_sum_reforested, adk_munic_sum_reforested, adk_school_sum_reforested, adk_overall_sum_reforested = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =940, sort=True, graphs = False)
 
 ## Catskills 532bg
-cat_parcel_tax_532bg, cat_county_sum_532bg, cat_munic_sum_532bg, cat_school_sum_532bg, cat_overall_sum_532bg = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =932)
+cat_parcel_tax_532bg, cat_county_sum_532bg, cat_munic_sum_532bg, cat_school_sum_532bg, cat_overall_sum_532bg = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =932, sort=True, graphs = True)
 ## Adk 532bg
-adk_parcel_tax_532bg, adk_county_sum_532bg, adk_munic_sum_532bg, adk_school_sum_532bg, adk_overall_sum_532bg = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =932)
+adk_parcel_tax_532bg, adk_county_sum_532bg, adk_munic_sum_532bg, adk_school_sum_532bg, adk_overall_sum_532bg = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =932, sort=True, graphs = True)
 
 ## Catskills other
-cat_parcel_tax_other, cat_county_sum_other, cat_munic_sum_other, cat_school_sum_other, cat_overall_sum_other = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =990)
+cat_parcel_tax_other, cat_county_sum_other, cat_munic_sum_other, cat_school_sum_other, cat_overall_sum_other = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =990, sort=True, graphs = False)
 ## Adk other
-adk_parcel_tax_other, adk_county_sum_other, adk_munic_sum_other, adk_school_sum_other, adk_overall_sum_other = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =990)
+adk_parcel_tax_other, adk_county_sum_other, adk_munic_sum_other, adk_school_sum_other, adk_overall_sum_other = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =990, sort=True, graphs = False)
 
 
-## adk/cat region, all parcels, all tax codes. 
-# all_parcel_tax_all, all_county_sum_all, all_munic_sum_all, all_school_sum_all, all_overall_sum_all = export_tax_data(all_parcel_tax, prefix='all', pclass ='Allclass')
+# adk/cat region, all parcels, all tax codes. 
+# all_parcel_tax_all, all_county_sum_all, all_munic_sum_all, all_school_sum_all, all_overall_sum_all = export_tax_data(all_parcel_tax, prefix='all', pclass ='Allclass', graphs = False)
 
+#%% ADK All property codes summary table
 
+adk_overall_sum_532a.rename(columns = {'Locality':'Locality_keep'},inplace = True)
+adk_overall_sum_532a.rename(columns = {'sum':'532a total (k)'},inplace = True)
+adk_overall_sum_easment.rename(columns = {'sum':'Easement total (k)'},inplace = True)
+adk_overall_sum_reforested.rename(columns = {'sum':'Reforested total (k)'},inplace = True)
+adk_overall_sum_532bg.rename(columns = {'sum':'532bg total (k)'},inplace = True)
+adk_overall_sum_other.rename(columns = {'sum':'Other total (k)'},inplace = True)
+ 
+allcode = pd.concat([adk_overall_sum_532a,
+                     adk_overall_sum_easment,
+                     adk_overall_sum_reforested,
+                     adk_overall_sum_532bg,
+                     adk_overall_sum_other],
+                     axis = 1)
+allcode = allcode.drop('mean', axis = 1)
+allcode = allcode.drop('Locality', axis = 1)
+allcode.rename(columns = {'Locality_keep':'Locality'},inplace = True)
+
+allcode.to_excel('Output/Adk_Allcodes_overall_sum.xlsx')
+
+#%% ADK Graph
+
+# Create the stacked bar chart
+plt.figure(figsize=(10, 6))
+
+# Get the categories (Locality column)
+categories = allcode['Locality']
+
+# Get the values for each category and convert to millions
+values_532a = allcode['532a total (k)'] / 1000
+values_easement = allcode['Easement total (k)'] / 1000
+values_reforested = allcode['Reforested total (k)'] / 1000
+values_532bg = allcode['532bg total (k)'] / 1000
+values_other = allcode['Other total (k)'] / 1000
+
+# Plot the stacked bars
+plt.bar(categories, values_532a, label='532a')
+plt.bar(categories, values_easement, bottom=values_532a, label='Easement')
+plt.bar(categories, values_reforested, bottom=values_532a + values_easement, label='Reforested')
+plt.bar(categories, values_532bg, bottom=values_532a + values_easement + values_reforested, label='532bg')
+plt.bar(categories, values_other, bottom=values_532a + values_easement + values_reforested + values_532bg, label='Other')
+
+# Customize the chart
+plt.xlabel('Locality')
+plt.ylabel('Total (millions)')
+plt.title('Adriondack Tax received by property class and locality')
+plt.legend()
+
+# Display the chart
+plt.savefig('Output/Adk_Allcodes_overall_sum_stacked.png')
+plt.show()
+
+#%% Cat 
+cat_overall_sum_532a.rename(columns = {'Locality':'Locality_keep'},inplace = True)
+cat_overall_sum_532a.rename(columns = {'sum':'532a total (k)'},inplace = True)
+cat_overall_sum_easment.rename(columns = {'sum':'Easement total (k)'},inplace = True)
+cat_overall_sum_reforested.rename(columns = {'sum':'Reforested total (k)'},inplace = True)
+cat_overall_sum_532bg.rename(columns = {'sum':'532bg total (k)'},inplace = True)
+cat_overall_sum_other.rename(columns = {'sum':'Other total (k)'},inplace = True)
+ 
+allcode_cat = pd.concat([cat_overall_sum_532a,
+                     cat_overall_sum_easment,
+                     cat_overall_sum_reforested,
+                     cat_overall_sum_532bg,
+                     cat_overall_sum_other],
+                     axis = 1)
+allcode_cat = allcode_cat.drop('mean', axis = 1)
+allcode_cat = allcode_cat.drop('Locality', axis = 1)
+allcode_cat.rename(columns = {'Locality_keep':'Locality'},inplace = True)
+
+allcode_cat.to_excel('Output/Cat_Allcodes_overall_sum.xlsx')
+
+#%% Cat Graph
+
+# Create the stacked bar chart
+plt.figure(figsize=(10, 6))
+
+# Get the categories (Locality column)
+categories = allcode_cat['Locality']
+
+# Get the values for each category and convert to millions
+values_532a = allcode_cat['532a total (k)'] / 1000
+values_easement = allcode_cat['Easement total (k)'] / 1000
+values_reforested = allcode_cat['Reforested total (k)'] / 1000
+values_532bg = allcode_cat['532bg total (k)'] / 1000
+values_other = allcode_cat['Other total (k)'] / 1000
+
+# Plot the stacked bars
+plt.bar(categories, values_532a, label='532a')
+plt.bar(categories, values_easement, bottom=values_532a, label='Easement')
+plt.bar(categories, values_reforested, bottom=values_532a + values_easement, label='Reforested')
+plt.bar(categories, values_532bg, bottom=values_532a + values_easement + values_reforested, label='532bg')
+plt.bar(categories, values_other, bottom=values_532a + values_easement + values_reforested + values_532bg, label='Other')
+
+# Customize the chart
+plt.xlabel('Locality')
+plt.ylabel('Total (millions)')
+plt.title('Catskills Tax received by property class and locality')
+plt.legend()
+
+# Display the chart
+plt.savefig('Output/Cat_Allcodes_overall_sum_stacked.png')
+plt.show()
