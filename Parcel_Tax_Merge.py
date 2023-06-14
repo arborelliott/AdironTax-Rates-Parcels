@@ -443,7 +443,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='',sort = False, graphs 
         # Totals
         # Sum of County Tax Paid on {taxcode} by County
         plt.barh(county_sum['County'], county_sum['sum'], color = 'blue')
-        plt.xlabel('Sum of County Tax Paid (in k)')
+        plt.xlabel('Sum of County Tax Paid (in thousands)')
         plt.ylabel('County')
         plt.title(f'{prefix} Sum of County Tax Paid on {taxcode} by County')
         plt.yticks(rotation=0)
@@ -452,7 +452,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='',sort = False, graphs 
         
         # Sum of Municipality Tax Paid on {taxcode} by Municipality
         plt.barh(munic_sum['Municipality Name'], munic_sum['sum'], color = 'blue')
-        plt.xlabel('Sum of Municipality Tax Paid (in k)')
+        plt.xlabel('Sum of Municipality Tax Paid (in thousands)')
         plt.ylabel('Municipality')
         plt.title(f'{prefix} Sum of Municipality Tax Paid on {taxcode} by Municipality')
         plt.yticks(rotation=0, fontsize=5)
@@ -461,7 +461,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='',sort = False, graphs 
         
         # Sum of School Tax Paid on {taxcode} by School
         plt.barh(school_sum['School District Name'], school_sum['sum'], color = 'blue')
-        plt.xlabel('Sum of School Tax Paid (in k)')
+        plt.xlabel('Sum of School Tax Paid (in thousands)')
         plt.ylabel('School')
         plt.title(f'{prefix} Sum of School Tax Paid on {taxcode} by School')
         plt.yticks(rotation=0, fontsize=5)
