@@ -661,3 +661,68 @@ plt.legend()
 # Display the chart
 plt.savefig('Output/Cat_Allcodes_overall_sum_stacked.png')
 plt.show()
+
+#%% Stacked bar of both
+
+import numpy as np
+
+# Create the stacked bar chart
+plt.figure(figsize=(10, 6))
+bar_width = .45
+
+# Set the x-axis positions for Adirondack bars
+x_adirondack = np.arange(len(categories))
+
+# Get the values for each category and convert to millions for Adirondack
+values_532a = allcode['532a total (k)'] / 1000
+values_easement = allcode['Easement total (k)'] / 1000
+values_reforested = allcode['Reforested total (k)'] / 1000
+values_532bg = allcode['532bg total (k)'] / 1000
+values_other = allcode['Other total (k)'] / 1000
+
+# Plot the stacked bars for Adirondack
+plt.bar(x_adirondack, values_532a, label='532a (Adks)', color='blue', width=bar_width)
+plt.bar(x_adirondack, values_easement, bottom=values_532a, label='Easement (Adks)', color='orange', width=bar_width)
+plt.bar(x_adirondack, values_reforested, bottom=values_532a + values_easement, label='Reforested (Adks)', color='lightgreen', width=bar_width)
+plt.bar(x_adirondack, values_532bg, bottom=values_532a + values_easement + values_reforested, label='532bg (Adks)', color='purple', width=bar_width)
+plt.bar(x_adirondack, values_other, bottom=values_532a + values_easement + values_reforested + values_532bg, label='Other (Adks)', color='red', width=bar_width)
+
+# Add 'ADK' label above each Adirondack bar
+for i, x in enumerate(x_adirondack):
+    plt.text(x, max(values_532a[i], values_easement[i], values_reforested[i], values_532bg[i], values_other[i]) + 1, 'Adirondacks', ha='center')
+
+# Set the x-axis positions for Catskills bars
+x_catskills = x_adirondack + 0.5
+
+# Get the values for each category and convert to millions for Catskills
+values_532a_cat = allcode_cat['532a total (k)'] / 1000
+values_easement_cat = allcode_cat['Easement total (k)'] / 1000
+values_reforested_cat = allcode_cat['Reforested total (k)'] / 1000
+values_532bg_cat = allcode_cat['532bg total (k)'] / 1000
+values_other_cat = allcode_cat['Other total (k)'] / 1000
+
+# Plot the stacked bars for Catskills with different color
+plt.bar(x_catskills, values_532a_cat, label='532a (Catskills)', color='green', width=bar_width)
+plt.bar(x_catskills, values_easement_cat, bottom=values_532a_cat, label='Easement (Catskills)', color='lightblue', width=bar_width)
+plt.bar(x_catskills, values_reforested_cat, bottom=values_532a_cat + values_easement_cat, label='Reforested (Catskills)', color='lightyellow', width=bar_width)
+plt.bar(x_catskills, values_532bg_cat, bottom=values_532a_cat + values_easement_cat + values_reforested_cat, label='532bg (Catskills)', color='lightcoral', width=bar_width)
+plt.bar(x_catskills, values_other_cat, bottom=values_532a_cat + values_easement_cat + values_reforested_cat + values_532bg_cat, label='Other (Catskills)', color='lightpink', width=bar_width)
+
+# Add 'ADK' label above each Adirondack bar
+for i, x in enumerate(x_catskills):
+    plt.text(x, max(values_532a_cat[i], values_easement_cat[i], values_reforested_cat[i], values_532bg_cat[i], values_other_cat[i]) + 1, 'Catskills', ha='center')
+
+# Set x-axis tick positions and labels
+plt.xticks(np.arange(len(categories)), categories)
+
+# Customize the chart
+plt.xlabel('Locality')
+plt.ylabel('Total (millions)')
+plt.title('Tax received by property class and locality')
+plt.legend()
+
+# Display the chart
+plt.savefig('Output/Overall_sum_stacked.png')
+plt.show()
+
+
