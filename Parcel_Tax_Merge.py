@@ -396,6 +396,7 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='',sort = False, graphs 
 
     # Graphs
     
+    
     if graphs:
         
         plt.rcParams["font.family"] = "Times New Roman"
@@ -438,12 +439,12 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='',sort = False, graphs 
         plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_school_sum_total.png')
         plt.show()
         del school_names
-    
-    
-        # Totals
+        
+        # Total Graphs
+        
         # Sum of County Tax Paid on {taxcode} by County
-        plt.barh(county_sum['County'], county_sum['sum'], color = 'blue')
-        plt.xlabel('Sum of County Tax Paid (in thousands)')
+        plt.barh(county_sum['County'], county_sum['sum'] / 1000, color='blue')
+        plt.xlabel('Sum of County Tax Paid (in millions)')
         plt.ylabel('County')
         plt.title(f'{prefix} Sum of County Tax Paid on {taxcode} by County')
         plt.yticks(rotation=0)
@@ -451,8 +452,8 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='',sort = False, graphs 
         plt.show()
         
         # Sum of Municipality Tax Paid on {taxcode} by Municipality
-        plt.barh(munic_sum['Municipality Name'], munic_sum['sum'], color = 'blue')
-        plt.xlabel('Sum of Municipality Tax Paid (in thousands)')
+        plt.barh(munic_sum['Municipality Name'], munic_sum['sum'] / 1000, color='blue')
+        plt.xlabel('Sum of Municipality Tax Paid (in millions)')
         plt.ylabel('Municipality')
         plt.title(f'{prefix} Sum of Municipality Tax Paid on {taxcode} by Municipality')
         plt.yticks(rotation=0, fontsize=5)
@@ -460,13 +461,15 @@ def export_tax_data(func_parcel_tax, prefix='', pclass ='',sort = False, graphs 
         plt.show()
         
         # Sum of School Tax Paid on {taxcode} by School
-        plt.barh(school_sum['School District Name'], school_sum['sum'], color = 'blue')
-        plt.xlabel('Sum of School Tax Paid (in thousands)')
+        plt.barh(school_sum['School District Name'], school_sum['sum'] / 1000, color='blue')
+        plt.xlabel('Sum of School Tax Paid (in millions)')
         plt.ylabel('School')
         plt.title(f'{prefix} Sum of School Tax Paid on {taxcode} by School')
         plt.yticks(rotation=0, fontsize=5)
         plt.savefig(f'Output/{taxcode}/{taxcode}_{prefix}_School_sum.png')
         plt.show()
+
+
 
     # Merging With Census Data
     county_sum_total = county_sum_total.merge(county_census, left_on='County FIPS', right_on='county',how = 'left')
@@ -531,7 +534,7 @@ cat_parcel_tax_532a, cat_county_sum_532a, cat_munic_sum_532a, cat_school_sum_532
 ## Adk 532a
 adk_parcel_tax_532a, adk_county_sum_532a, adk_munic_sum_532a, adk_school_sum_532a, adk_overall_sum_532a = export_tax_data(adk_parcel_tax, prefix='Adk', pclass =931, sort=True, graphs = True)
 ## All region 532a
-# all_parcel_tax_532a, all_county_sum_532a, all_munic_sum_532a, all_school_sum_532a, all_overall_sum_532a = export_tax_data(all_parcel_tax, prefix='all', pclass =931)
+all_parcel_tax_532a, all_county_sum_532a, all_munic_sum_532a, all_school_sum_532a, all_overall_sum_532a = export_tax_data(all_parcel_tax, prefix='all', pclass =931, sort=True, graphs = True)
 
 ## Catskills easements
 cat_parcel_tax_easment, cat_county_sum_easment, cat_munic_sum_easment, cat_school_sum_easment, cat_overall_sum_easment = export_tax_data(cat_parcel_tax, prefix='Cat', pclass =980, sort=True, graphs = True)
@@ -577,6 +580,17 @@ allcode = allcode.drop('Locality', axis = 1)
 allcode.rename(columns = {'Locality_keep':'Locality'},inplace = True)
 
 allcode.to_excel('Output/Adk_Allcodes_overall_sum.xlsx')
+
+# Graph of total
+plt.barh(allcode['Locality'], allcode['532a total (k)'] / 1000, color='blue')
+plt.xlabel('Sum of 532a Tax Paid (in millions)')
+plt.ylabel('School')
+plt.title('Sum of 532a Tax Paid')
+plt.yticks(rotation=0, fontsize=9)
+plt.savefig('Output/532a/Sum of 532a Tax Paid.png')
+plt.show()
+
+
 
 #%% ADK Graph
 

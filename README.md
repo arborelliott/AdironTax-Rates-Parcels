@@ -83,7 +83,7 @@
 
 4. ## Hedonic_SCT_Merge.py: 4th
 
-    This script merges together three other primary data sets: sales, Centroids, and tax information. The output is the centroids data set with sales associated to applicable parcels, and tax data applied to ADK localities. 
+    This script merges together three other primary data sets: sales, Centroids, and tax information. The output is the centroids data set with sales associated to applicable parcels, and tax data applied to ADK localities. This output was designed specifically to conduct the hedonic analysis
 
     **INPUT:**
 
@@ -104,3 +104,6 @@
     Prefix: Specify prefix if imported and exported data
 
         
+## Other Scripts
+
+    Village Calculations.py - This script analyzes parcel data in a similar way to parcel_tax_merge, however for villages only. This script should be run after the first 3 scripts and generates summary tables in the Outputs folder. 

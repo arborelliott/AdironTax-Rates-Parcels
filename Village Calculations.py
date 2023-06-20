@@ -6,10 +6,14 @@
 This script joins the village level tax rates with the parcel data in order to calculate the amount of tax received by ADK villages
 for 532a parcels. 
 
+
+This script analyzes parcel data in a similar way to parcel_tax_merge, however for villages only. 
+This script should be run after the first 3 scripts and generates summary tables in the Outputs folder. 
+
+
 """
 
 import pandas as pd
-import matplotlib.pyplot as plt
 
 tax = pd.read_csv('Input/Village_Property_Taxrates_2021.csv')
 parcel = pd.read_csv('Input/Property_Assessment_Data_from_Local_Assessment_Rolls_931_980_940_932_990.csv')
@@ -96,7 +100,7 @@ if not unmatched_rows.empty:
     print(unmatched_rows)
     
 # Export unmatched rows to CSV
-    unmatched_rows.to_csv('Output/unmatched_data.csv', index=False)
+    # unmatched_rows.to_csv('Output/unmatched_data.csv', index=False)
 
 #%% Calculations
 
@@ -129,7 +133,7 @@ def export_tax_data(func_parcel_tax, prefix=''):
     func_parcel_tax = func_parcel_tax.drop('_merge',axis = 1)
     
     # Export to Excel
-    with pd.ExcelWriter(f'Output/{taxcode}_{prefix}_parcel_tax.xlsx',date_format=None, mode='w') as writer:
+    with pd.ExcelWriter(f'Output/{taxcode}/{taxcode}_{prefix}_parcel_tax.xlsx',date_format=None, mode='w') as writer:
         func_parcel_tax.to_excel(writer, sheet_name = f'{taxcode} All Parcels')
         vil_sum_total.to_excel(writer, sheet_name = 'Village Summary')
     
