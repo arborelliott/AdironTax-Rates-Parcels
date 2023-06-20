@@ -34,6 +34,8 @@
     This script runs a function which retrieves information from the Census API 
     based on desired geographic regions within NY.
 
+    Please note that the user-specific Census API key was removed from the script: census_api. A new code will need to be added for it to function. 
+
     **INPUT:**
         
     Data received from census API Request
@@ -107,3 +109,5 @@
 ## Other Scripts
 
     Village Calculations.py - This script analyzes parcel data in a similar way to parcel_tax_merge, however for villages only. This script should be run after the first 3 scripts and generates summary tables in the Outputs folder. 
+
+    Hedonic Analysis scripts (folder) - these scripts were used to conduct the hedonic analysis, and may be useful for future work on this topic or replication of the analysis. 
