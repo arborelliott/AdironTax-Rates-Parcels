@@ -45,7 +45,11 @@ def retrieve_census(for_clause, title):
     #title = ''
     
     in_clause = 'state:36'
-    key_value = '98f45bb20730399804c81c734eb32ca2b92dd188' # census API key
+    
+    
+    ############### ADD YOUR KEY HERE
+    key_value = '' # census API key
+    ############### ADD KEY
     
     payload = {
         'get':"NAME,B20002_001E,B01003_001E,B20003_001E,B02001_001E,B02001_002E,COUNTY,GEO_ID",
